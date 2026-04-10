@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* ===== DESIGN TOKENS ===== */
+:root {
+  /* Primary */
+  --color-primary: #2b3fcb;
+  --color-primary-hover: #1e2c8f;
+  --color-primary-light: #4758eb;
+
+  /* Text */
+  --color-text-primary: #11110f;
+  --color-text-secondary: #555555;
+  --color-text-link: #3747d7;
+
+  /* Surface */
+  --color-bg-page: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-bg-card-2: #eff5fa;
+
+  /* Semantic */
+  --color-error: #ff0000;
+  --color-error-light: #fda4af;
+}
+
+/* ===== BASE ===== */
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== REUSABLE CLASSES ===== */
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-link {
+  color: var(--color-text-link);
+}
+
+.card {
+  background-color: var(--color-bg-card);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+.card-soft {
+  background-color: var(--color-bg-card-2);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.bg-error-light {
+  background-color: var(--color-error-light);
+}
