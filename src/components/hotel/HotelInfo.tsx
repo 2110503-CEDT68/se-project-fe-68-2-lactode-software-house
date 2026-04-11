@@ -30,27 +30,27 @@ export default function HotelInfo({ hotel }: { hotel: HotelInfoData }) {
     <div className="space-y-3">
 
       {/* Name */}
-      <h1 className="text-3xl font-bold text-gray-900">{hotel.name}</h1>
+      <h1 className="text-title">{hotel.name}</h1>
 
       {/* Address */}
-      <p className="text-gray-500 text-sm">
+      <p className="text-detail">
         {hotel.address}, {hotel.province}
       </p>
 
       {/* Description */}
-      <p className="text-gray-600 text-sm leading-relaxed">{hotel.description}</p>
+      <p className="text-subdetail">{hotel.description}</p>
 
       {/* Contact */}
       <div className="space-y-2 pt-1">
 
         {/* Phone */}
-        <div className="flex items-center gap-2 text-gray-700 text-sm">
+        <div className="flex items-center gap-2 text-subdetail">
           <Phone className="w-4 h-4 flex-shrink-0"/>
           {hotel.phone}
         </div>
 
         {/* Email */}
-        <div className="flex items-center gap-2 text-gray-700 text-sm">
+        <div className="flex items-center gap-2 text-subdetail">
           <Mail className="w-4 h-4 flex-shrink-0"/>
           {hotel.email}
         </div>

@@ -1,6 +1,7 @@
 // components/RoomCard.tsx
 
 import { User } from "lucide-react";
+import Button from "../common/Button";
 
 export interface Room {
   id: string;
@@ -86,13 +87,15 @@ export default function RoomCard({ room, onDetail }: RoomCardProps) {
       </div>
 
       {/* Detail button */}
-      <button
-        onClick={() => onDetail?.(room)}
-        className="bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium px-5 py-2 rounded-full transition-colors flex-shrink-0"
-      >
-        Detail
-      </button>
-
+      <div className="self-end">
+        <Button
+          variant="primary"
+          className="btn-sm"
+          onClick={() => onDetail?.(room)}
+        >
+          Detail
+        </Button>
+      </div>
     </div>
   );
 }
