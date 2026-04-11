@@ -72,18 +72,43 @@ select {
 }
 
 /* ========================
-   REUSABLE TEXT
+  TEXT
 ======================== */
-.text-primary {
+.text-title {
   color: var(--color-text-primary);
+  font-size: 44px;
+  font-weight: bold;
 }
 
-.text-secondary {
+.text-subtitle {
+  color: var(--color-text-primary);
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.text-highlight {
+  color: var(--color-primary);
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 0.3em;
+}
+
+.text-detail {
   color: var(--color-text-secondary);
+  font-size: 24px;
 }
 
-.text-link {
-  color: var(--color-text-link);
+.text-subdetail {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.bg-error-light {
+  background-color: var(--color-error-light);
 }
 
 /* ========================
@@ -285,17 +310,6 @@ select {
 .badge-soft {
   background-color: var(--color-bg-card-2);
   color: var(--color-text-secondary);
-}
-
-/* ========================
-   ERROR
-======================== */
-.text-error {
-  color: var(--color-error);
-}
-
-.bg-error-light {
-  background-color: var(--color-error-light);
 }
 
 /* ========================
