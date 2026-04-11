@@ -20,6 +20,21 @@ export type Hotel = {
   image?: string;
 };
 
+export type Room = {
+  _id: string;
+  hotel?: string | Hotel;
+  picture: string[];
+  roomType: string;
+  price: number;
+  people: number;
+  bedType: string;
+  bed: number;
+  description: string;
+  facilities: string[];
+  avaliableNumber: number;
+  status: string;
+};
+
 export type Booking = {
   _id: string;
   user: string | User;
@@ -45,6 +60,20 @@ export type BookingInput = {
   hotelId: string;
   checkInDate: string;
   checkOutDate: string;
+};
+
+export type RoomInput = {
+  hotelId: string;
+  picture: string[];
+  roomType: string;
+  price: number;
+  people: number;
+  bedType: string;
+  bed: number;
+  description: string;
+  facilities: string[];
+  avaliableNumber: number;
+  status: string;
 };
 
 export type ApiListResponse<T> = {
