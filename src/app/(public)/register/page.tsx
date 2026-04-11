@@ -61,8 +61,12 @@ export default function RegisterPage() {
             </p>
           ) : null}
 
-          <button disabled={submitting} className="w-full rounded-2xl bg-brand-500 px-5 py-3 text-base font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60">
-            {submitting ? 'Creating account...' : 'Sign-up'}
+          <button
+            disabled={submitting}
+            style={{ backgroundColor: 'var(--color-primary)', color: '#ffffff' }}
+            className="w-full rounded-2xl bg-brand-500 px-5 py-3 text-base font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {submitting ? 'Creating account...' : 'Sign Up'}
           </button>
         </form>
       </AuthCard>
