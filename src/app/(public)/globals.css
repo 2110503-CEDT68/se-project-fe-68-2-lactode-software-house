@@ -1,0 +1,441 @@
+@import "tailwindcss";
+
+/* ========================
+   DESIGN TOKENS
+======================== */
+:root {
+  /* ===== PRIMARY ===== */
+  --color-primary: #2b3fcb;
+  --color-primary-hover: #1e2c8f;
+  --color-primary-light: #4758eb;
+
+  /* ===== TEXT ===== */
+  --color-text-primary: #11110f;
+  --color-text-secondary: #555555;
+  --color-text-link: #3747d7;
+
+  /* ===== SURFACE ===== */
+  --color-bg-page: #f8fafc;
+  --color-bg-card: #ffffff;
+  --color-bg-card-2: #eff5fa;
+
+  /* ===== SEMANTIC ===== */
+  --color-error: #ff0000;
+  --color-error-light: #fda4af;
+
+  /* ===== BORDER ===== */
+  --color-border: #d9d9d9;
+  --color-border-soft: #e5e7eb;
+  --color-divider: #9f9f9f;
+
+  /* ===== DISABLED ===== */
+  --color-disabled: #6b6b6b;
+  --color-disabled-hover: #666666;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  @apply antialiased;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+/* ========================
+   REUSABLE TEXT
+======================== */
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-link {
+  color: var(--color-text-link);
+}
+
+/* ========================
+   CARD
+======================== */
+.card {
+  @apply rounded-3xl p-4 shadow-sm;
+  background-color: var(--color-bg-card);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.card-soft {
+  @apply rounded-3xl p-4;
+  background-color: var(--color-bg-card-2);
+}
+
+/* ========================
+   BUTTON
+======================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-width: 280px;
+  height: 112px;
+  padding: 0 40px;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* default button */
+.btn-primary {
+  background: var(--btn-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: var(--btn-primary-hover);
+  color: #ffffff;
+}
+
+/* button with icon */
+.btn-primary-icon {
+  background: var(--btn-primary);
+  color: #ffffff;
+}
+
+.btn-primary-icon:hover {
+  background: var(--btn-primary-hover);
+  color: #ffffff;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+/* danger button */
+.btn-danger {
+  background: #ffffff;
+  border-color: var(--btn-danger);
+  color: var(--btn-danger);
+}
+
+.btn-danger:hover {
+  background: var(--btn-danger-hover);
+  border-color: var(--btn-danger-hover);
+  color: #ffffff;
+}
+
+/* disabled / back button */
+.btn-disabled {
+  background: var(--btn-neutral);
+  border-color: var(--btn-neutral-border);
+  color: var(--btn-neutral-text);
+}
+
+.btn-disabled:hover {
+  background: var(--btn-neutral-hover);
+  border-color: var(--btn-neutral-hover);
+  color: var(--btn-neutral-hover-text);
+}
+
+/* ===== primary ===== */
+.btn-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+  color: #ffffff;
+}
+
+/* ===== primary with icon ===== */
+.btn-primary-icon {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.btn-primary-icon:hover {
+  background-color: var(--color-primary-hover);
+  color: #ffffff;
+}
+
+/* ===== danger ===== */
+.btn-danger {
+  background-color: #ffffff;
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
+.btn-danger:hover {
+  background-color: var(--color-error);
+  border-color: var(--color-error);
+  color: #ffffff;
+}
+
+/* ===== neutral / back / disabled style ===== */
+.btn-disabled {
+  background-color: #ffffff;
+  border-color: var(--color-disabled);
+  color: var(--color-disabled);
+}
+
+.btn-disabled:hover {
+  background-color: var(--color-disabled-hover);
+  border-color: var(--color-disabled-hover);
+  color: #ffffff;
+}
+
+/* ===== size modifiers ===== */
+.btn-sm {
+  min-width: 120px;
+  height: 42px;
+  padding: 0 18px;
+  font-size: 14px;
+}
+
+.btn-md {
+  min-width: 160px;
+  height: 48px;
+  padding: 0 22px;
+  font-size: 16px;
+}
+
+.btn-lg {
+  min-width: 180px;
+  height: 56px;
+  padding: 0 28px;
+  font-size: 18px;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+/* ========================
+   INPUT
+======================== */
+.input {
+  @apply w-full rounded-xl border px-4 py-2 text-sm outline-none transition;
+  border-color: var(--color-border-soft);
+  background-color: #ffffff;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+}
+
+.input::placeholder {
+  color: #9ca3af;
+}
+
+/* ========================
+   BADGE
+======================== */
+.badge {
+  @apply inline-flex rounded-full px-3 py-1 text-xs font-medium;
+}
+
+.badge-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.badge-soft {
+  background-color: var(--color-bg-card-2);
+  color: var(--color-text-secondary);
+}
+
+/* ========================
+   ERROR
+======================== */
+.text-error {
+  color: var(--color-error);
+}
+
+.bg-error-light {
+  background-color: var(--color-error-light);
+}
+
+/* ========================
+   NAVBAR
+======================== */
+.navbar {
+  @apply w-full;
+  border-bottom: 1px solid var(--color-border);
+  background: #ffffff;
+}
+
+.navbar-container {
+  @apply mx-auto flex w-full items-center justify-between;
+  max-width: 1440px;
+  height: 120px;
+  padding: 0 64px;
+}
+
+.navbar-logo {
+  @apply flex items-center gap-4;
+  text-decoration: none;
+}
+
+.navbar-logo-icon {
+  @apply flex items-center justify-center shrink-0 rounded-xl;
+  width: 58px;
+  height: 58px;
+  background: var(--color-text-link);
+  color: #ffffff;
+}
+
+.navbar-logo-building {
+  width: 32px;
+  height: 32px;
+}
+
+.navbar-title-group {
+  @apply flex flex-col;
+  line-height: 1.05;
+  color: var(--color-text-primary);
+}
+
+.navbar-title-line {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+}
+
+.navbar-title-line + .navbar-title-line {
+  margin-top: 4px;
+}
+
+.navbar-menu {
+  @apply flex items-center;
+}
+
+.navbar-menu-item,
+.navbar-menu-button {
+  @apply inline-flex items-center gap-2 whitespace-nowrap border-0 bg-transparent font-medium transition-opacity;
+  padding: 0 24px;
+  font-size: 17px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.navbar-menu-item:hover,
+.navbar-menu-button:hover {
+  opacity: 0.7;
+}
+
+.navbar-menu-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.navbar-menu-item-account,
+.navbar-menu-icon-account {
+  color: var(--color-text-link);
+}
+
+.navbar-divider {
+  width: 1px;
+  height: 60px;
+  background: var(--color-divider);
+  margin: 0 8px;
+}
+
+/* ========================
+   LAYOUT HELPERS
+======================== */
+.page-container {
+  @apply mx-auto w-full max-w-7xl px-4 md:px-6 lg:px-8;
+}
+
+.section {
+  @apply py-8 md:py-10 lg:py-12;
+}
+
+/* ========================
+   RESPONSIVE
+======================== */
+@media (max-width: 1024px) {
+  .navbar-container {
+    padding: 0 24px;
+  }
+
+  .navbar-title-line {
+    font-size: 15px;
+    letter-spacing: 0.28em;
+  }
+
+  .navbar-menu-item,
+  .navbar-menu-button {
+    padding: 0 14px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn {
+    min-width: 140px;
+    height: 48px;
+    padding: 0 20px;
+    font-size: 16px;
+  }
+
+  .navbar-container {
+    height: 88px;
+    padding: 0 16px;
+  }
+
+  .navbar-logo-icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  .navbar-logo-building {
+    width: 24px;
+    height: 24px;
+  }
+
+  .navbar-title-line {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+  }
+
+  .navbar-divider {
+    height: 40px;
+  }
+}
