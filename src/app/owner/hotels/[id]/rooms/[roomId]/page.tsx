@@ -3,14 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useApp } from '@/src/context/AppContext';
-import { Hotel } from '@/types';
-
-// Facility tags — extend when your Hotel type gets a facilities field
-const FACILITIES = [
-  'Non-Smoking', 'Non-Smoking', 'Non-Smoking', 'Non-Smoking',
-  'Non-Smoking', 'Non-Smoking', 'Non-Smoking', 'Non-Smoking',
-  'Non-Smoking', 'Non-Smoking', 'Non-Smoking', 'Non-Smoking', 'Non-Smoking',
-];
+import { FACILITY_OPTIONS } from '@/src/constants/facilities';
+import { Hotel, Room } from '@/types';
 
 // ── Icon helpers ──────────────────────────────────────────
 function IconCheck() {
@@ -48,67 +42,61 @@ function IconClock() {
     </svg>
   );
 }
-function IconPersonSm() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"
-      stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" opacity={0.65}>
-      <circle cx="7" cy="4.5" r="2.5" />
-      <path d="M1 12c0-2.5 2.5-4 6-4s6 1.5 6 4" />
-    </svg>
-  );
-}
 
 // ── Main Component ────────────────────────────────────────
 export default function RoomDetailPage() {
   const router  = useRouter();
   const params  = useParams();
-  const hotelId = params?.id as string | undefined;
+
+  // Route: /hotel/[hotelId]/rooms/[roomId]  OR  /hotel/[id]
+  // Supports both: viewing a hotel (with rooms) OR a specific room
+  const hotelId = params?.hotelId as string ?? params?.id as string ?? '';
+  const roomId  = params?.roomId as string | undefined;
 
   const { user, hotels, ready, loading } = useApp();
 
   const [hotel, setHotel]       = useState<Hotel | null>(null);
+  const [room, setRoom]         = useState<Room | null>(null);
   const [fetching, setFetching] = useState(true);
   const [error, setError]       = useState<string | null>(null);
 
-  // ── Fetch hotel data ──────────────────────────────────
+  const API = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1';
+
+  // ── Fetch hotel + room data ───────────────────────────
   useEffect(() => {
     if (!ready) return;
 
-    // 1. Try context cache first — avoids extra network call
-    if (hotels.length > 0 && hotelId) {
-      const found = hotels.find((h) => h._id === hotelId);
-      if (found) {
-        setHotel(found);
-        setFetching(false);
-        return;
-      }
-    }
-
-    // 2. No hotelId in URL
-    if (!hotelId) {
-      setError('No hotel ID provided.');
-      setFetching(false);
-      return;
-    }
-
-    // 3. Fetch individually: GET /hotels/:id
     (async () => {
       try {
-        const res  = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5000/api/v1'}/hotels/${hotelId}`,
-          { cache: 'no-store' }
-        );
-        const data = await res.json();
-        if (!res.ok || data.success === false)
-          throw new Error(data.message ?? 'Failed to load hotel');
-        setHotel(data.data as Hotel);
+        // 1. Find hotel from context cache first
+        let foundHotel = hotels.find((h) => h._id === hotelId) ?? null;
+
+        // 2. If not in cache, fetch from API
+        if (!foundHotel && hotelId) {
+          const res  = await fetch(`${API}/hotels/${hotelId}`, { cache: 'no-store' });
+          const data = await res.json();
+          if (!res.ok || data.success === false)
+            throw new Error(data.message ?? 'Failed to load hotel');
+          foundHotel = data.data as Hotel;
+        }
+        setHotel(foundHotel);
+
+        // 3. If roomId provided, fetch the specific room
+        // Route: GET /hotels/:hotelId/rooms/:roomId
+        if (roomId) {
+          const res  = await fetch(`${API}/hotels/${hotelId}/rooms/${roomId}`, { cache: 'no-store' });
+          const data = await res.json();
+          if (!res.ok || data.success === false)
+            throw new Error(data.message ?? 'Failed to load room');
+          setRoom(data.data as Room);
+        }
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Could not load hotel.');
+        setError(e instanceof Error ? e.message : 'Could not load data.');
       } finally {
         setFetching(false);
       }
     })();
-  }, [ready, hotelId, hotels]);
+  }, [ready, hotelId, roomId, hotels, API]);
 
   // ── Loading ───────────────────────────────────────────
   if (!ready || loading || fetching) {
@@ -139,10 +127,26 @@ export default function RoomDetailPage() {
     );
   }
 
+  // ── Use room data if available, else fall back to hotel-level data ──
+  // This lets the page work both as hotel view AND room view
+  const displayImage       = room?.picture?.[0] ?? hotel.image ?? null;
+  const displayTitle       = room ? `${room.roomType}` : hotel.name;
+  const displayDescription = room?.description
+    ?? 'A cozy and comfortable room perfect for guests. Features a queen-size bed, air conditioning, free WiFi, and a private bathroom.';
+  const displayPrice       = room?.price ?? null;
+  const displayPeople      = room?.people ?? null;
+  const displayBedType     = room?.bedType ?? null;
+  const displayBedCount    = room?.bed ?? null;
+  const displayAvailable   = room?.avaliableNumber ?? null;
+
+  // Facilities: use real room facilities if available,
+  // otherwise show all FACILITY_OPTIONS as a preview
+  const activeFacilities = room?.facilities ?? FACILITY_OPTIONS.map((f) => f.label);
+
   // ── Book button — auth-aware ──────────────────────────
   const handleBook = () => {
     if (user) {
-      router.push(`/booking?hotelId=${hotel._id}`);
+      router.push(`/booking?hotelId=${hotel._id}${room ? `&roomId=${room._id}` : ''}`);
     } else {
       router.push('/login');
     }
@@ -168,10 +172,10 @@ export default function RoomDetailPage() {
 
           {/* Room image */}
           <div className="flex aspect-video items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            {hotel.image ? (
+            {displayImage ? (
               <img
-                src={hotel.image}
-                alt={hotel.name}
+                src={displayImage}
+                alt={displayTitle}
                 className="h-full w-full object-cover"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
@@ -182,28 +186,33 @@ export default function RoomDetailPage() {
 
           {/* Title */}
           <h1 className="mt-6 font-serif text-3xl font-normal tracking-tight text-slate-900">
-            {hotel.name}
+            {displayTitle}
           </h1>
 
           {/* Description */}
           <p className="mt-3 text-sm leading-relaxed text-slate-500">
-            A cozy and comfortable room perfect for 2 guests. Features a queen-size bed,
-            air conditioning, free WiFi, and a private bathroom. Ideal for travelers
-            looking for a simple and affordable stay
+            {displayDescription}
           </p>
 
-          {/* Facilities */}
+          {/* Facilities — uses real FACILITY_OPTIONS from facilities.ts */}
           <h2 className="mb-4 mt-7 text-lg font-semibold text-slate-900">Facilities</h2>
           <div className="flex flex-wrap gap-2">
-            {FACILITIES.map((label, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-500 transition hover:bg-slate-50"
-              >
-                <IconPersonSm />
-                {label}
-              </span>
-            ))}
+            {FACILITY_OPTIONS.map(({ label, icon: Icon }) => {
+              const isActive = activeFacilities.includes(label);
+              return (
+                <span
+                  key={label}
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition
+                    ${isActive
+                      ? 'border-blue-200 bg-blue-50 text-blue-700'
+                      : 'border-slate-200 bg-white text-slate-400'
+                    }`}
+                >
+                  <Icon className="h-3 w-3" />
+                  {label}
+                </span>
+              );
+            })}
           </div>
 
           {/* Book / Sign-in button */}
@@ -219,36 +228,52 @@ export default function RoomDetailPage() {
         {/* ── RIGHT: stats panel ── */}
         <div className="flex flex-col gap-4 pt-1">
 
-          <div className="flex items-center gap-2.5 text-sm">
-            <span className="flex w-[18px] shrink-0 items-center justify-center">
-              <IconCheck />
-            </span>
-            Room Available : 3
-          </div>
+          {/* Room Available */}
+          {displayAvailable !== null && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <span className="flex w-[18px] shrink-0 items-center justify-center">
+                <IconCheck />
+              </span>
+              Room Available : {displayAvailable}
+            </div>
+          )}
 
-          <div className="flex items-center gap-2.5 text-sm">
-            <span className="flex w-[18px] shrink-0 items-center justify-center">
-              <IconBed />
-            </span>
-            Queen Size Bed : 1
-          </div>
+          {/* Bed type + count */}
+          {displayBedType && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <span className="flex w-[18px] shrink-0 items-center justify-center">
+                <IconBed />
+              </span>
+              {displayBedType} : {displayBedCount}
+            </div>
+          )}
 
-          <div className="flex items-center gap-2.5 text-sm">
-            <span className="flex w-[18px] shrink-0 items-center justify-center">
-              <IconPerson />
-            </span>
-            2 people
-          </div>
+          {/* People */}
+          {displayPeople !== null && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <span className="flex w-[18px] shrink-0 items-center justify-center">
+                <IconPerson />
+              </span>
+              {displayPeople} {displayPeople === 1 ? 'person' : 'people'}
+            </div>
+          )}
 
-          <div className="flex items-center gap-2.5 text-sm">
-            <span className="flex w-[18px] shrink-0 items-center justify-center">
-              <IconClock />
-            </span>
-            500 baht/day
-          </div>
+          {/* Price */}
+          {displayPrice !== null && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <span className="flex w-[18px] shrink-0 items-center justify-center">
+                <IconClock />
+              </span>
+              {displayPrice} baht/day
+            </div>
+          )}
 
-          {/* Extra hotel info from API */}
+          {/* Hotel info */}
           <div className="mt-1 flex flex-col gap-3 border-t border-slate-200 pt-4">
+            <div>
+              <div className="mb-0.5 text-xs text-slate-400">Hotel</div>
+              <div className="text-sm font-semibold">{hotel.name}</div>
+            </div>
             <div>
               <div className="mb-0.5 text-xs text-slate-400">Province</div>
               <div className="text-sm font-semibold">{hotel.province}</div>

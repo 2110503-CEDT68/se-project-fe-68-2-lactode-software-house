@@ -36,14 +36,14 @@ export default function Navbar() {
         <nav className="navbar-menu">
           {role === 'guest' && (
             <>
-              <Link href="/hotel" className="navbar-menu-item">
+              <Link href="/hotels" className="navbar-menu-item">
                 <BedDouble className="navbar-menu-icon" />
                 <span>Hotel</span>
               </Link>
 
               <div className="navbar-divider" />
 
-              <Link href="/login" className="navbar-menu-item">
+              <Link href="/signin" className="navbar-menu-item">
                 <LogIn className="navbar-menu-icon" />
                 <span>Login</span>
               </Link>

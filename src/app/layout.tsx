@@ -1,10 +1,10 @@
-import './globals.css';
+import './globals.css'
 import type { Metadata } from 'next';
 import Navbar from '@/src/components/common/Navbar';
 import { AppProvider } from '@/src/context/AppContext';
 
 export const metadata: Metadata = {
-  title: 'TUM DAI D | Hotel Booking',
+  title: 'LACTODE SOFEWARE HOUSE | Hotel Booking',
   description: 'Frontend for a hotel booking project built with Next.js and Tailwind CSS.'
 };
 
