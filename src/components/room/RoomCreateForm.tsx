@@ -3,6 +3,9 @@
 import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ImagePlus, LoaderCircle } from 'lucide-react';
+import Button from '@/src/components/common/Button';
+import FacilitySelector from '@/src/components/common/FacilitySelector';
+import TextInput from '@/src/components/common/TextInput';
 import { FACILITY_OPTIONS } from '@/src/constants/facilities';
 import { createRoom, formatApiMessage } from '@/src/lib/api';
 import { useApp } from '@/src/context/AppContext';
@@ -62,12 +65,6 @@ export default function RoomCreateForm({ hotelId }: Props) {
 
   const hotel = useMemo(() => hotels.find((item) => item._id === hotelId), [hotelId, hotels]);
 
-  const handleChange =
-    (field: keyof FormState) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const value = event.target.value;
-      setForm((current) => ({ ...current, [field]: value }));
-    };
-
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
@@ -87,18 +84,6 @@ export default function RoomCreateForm({ hotelId }: Props) {
       ...current,
       picture: pictures.filter(Boolean),
     }));
-  };
-
-  const toggleFacility = (facility: string) => {
-    setForm((current) => {
-      const exists = current.facilities.includes(facility);
-      return {
-        ...current,
-        facilities: exists
-          ? current.facilities.filter((item) => item !== facility)
-          : [...current.facilities, facility],
-      };
-    });
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -152,22 +137,24 @@ export default function RoomCreateForm({ hotelId }: Props) {
       </div>
 
       <div className="owner-room-form__actions">
-        <button
+        <Button
           type="button"
-          className="owner-room-form__button owner-room-form__button--secondary"
+          variant="disabled"
+          className="owner-room-form__action-button owner-room-form__action-button--secondary"
           onClick={() => router.back()}
         >
           cancel
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="submit"
-          className="owner-room-form__button owner-room-form__button--primary"
+          variant="primary"
+          className="owner-room-form__action-button"
           disabled={submitting}
+          icon={submitting ? <LoaderCircle className="owner-room-form__spinner" /> : undefined}
         >
-          {submitting ? <LoaderCircle className="owner-room-form__spinner" /> : null}
-          <span>{submitting ? 'creating...' : 'create'}</span>
-        </button>
+          {submitting ? 'creating...' : 'create'}
+        </Button>
       </div>
 
       <label className="owner-room-form__upload">
@@ -183,69 +170,61 @@ export default function RoomCreateForm({ hotelId }: Props) {
       </label>
 
       <div className="owner-room-form__grid">
-        <label className="owner-room-form__field">
-          <span>Room Type</span>
-          <input
-            type="text"
-            placeholder="Suite Room"
-            value={form.roomType}
-            onChange={handleChange('roomType')}
-          />
-        </label>
+        <TextInput
+          label="Room Type"
+          placeholder="Suite Room"
+          value={form.roomType}
+          onChange={(value) => setForm((current) => ({ ...current, roomType: value }))}
+          className="owner-room-form__field"
+        />
 
-        <label className="owner-room-form__field">
-          <span>Room Amount</span>
-          <input
-            type="number"
-            min="1"
-            placeholder="10"
-            value={form.avaliableNumber}
-            onChange={handleChange('avaliableNumber')}
-          />
-        </label>
+        <TextInput
+          label="Room Amount"
+          type="number"
+          min="1"
+          placeholder="10"
+          value={form.avaliableNumber}
+          onChange={(value) => setForm((current) => ({ ...current, avaliableNumber: value }))}
+          className="owner-room-form__field"
+        />
 
-        <label className="owner-room-form__field">
-          <span>Price</span>
-          <input
-            type="number"
-            min="1"
-            placeholder="500"
-            value={form.price}
-            onChange={handleChange('price')}
-          />
-        </label>
+        <TextInput
+          label="Price"
+          type="number"
+          min="1"
+          placeholder="500"
+          value={form.price}
+          onChange={(value) => setForm((current) => ({ ...current, price: value }))}
+          className="owner-room-form__field"
+        />
 
-        <label className="owner-room-form__field">
-          <span>People</span>
-          <input
-            type="number"
-            min="1"
-            placeholder="4"
-            value={form.people}
-            onChange={handleChange('people')}
-          />
-        </label>
+        <TextInput
+          label="People"
+          type="number"
+          min="1"
+          placeholder="4"
+          value={form.people}
+          onChange={(value) => setForm((current) => ({ ...current, people: value }))}
+          className="owner-room-form__field"
+        />
 
-        <label className="owner-room-form__field">
-          <span>Bed Type</span>
-          <input
-            type="text"
-            placeholder="King Size"
-            value={form.bedType}
-            onChange={handleChange('bedType')}
-          />
-        </label>
+        <TextInput
+          label="Bed Type"
+          placeholder="King Size"
+          value={form.bedType}
+          onChange={(value) => setForm((current) => ({ ...current, bedType: value }))}
+          className="owner-room-form__field"
+        />
 
-        <label className="owner-room-form__field">
-          <span>Bed</span>
-          <input
-            type="number"
-            min="1"
-            placeholder="2"
-            value={form.bed}
-            onChange={handleChange('bed')}
-          />
-        </label>
+        <TextInput
+          label="Bed"
+          type="number"
+          min="1"
+          placeholder="2"
+          value={form.bed}
+          onChange={(value) => setForm((current) => ({ ...current, bed: value }))}
+          className="owner-room-form__field"
+        />
       </div>
 
       <label className="owner-room-form__textarea-field">
@@ -254,28 +233,27 @@ export default function RoomCreateForm({ hotelId }: Props) {
           rows={5}
           placeholder="A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service."
           value={form.description}
-          onChange={handleChange('description')}
+          onChange={(event) =>
+            setForm((current) => ({
+              ...current,
+              description: event.target.value,
+            }))
+          }
         />
       </label>
 
       <div className="owner-room-form__facilities">
         <span className="owner-room-form__section-title">Facilities</span>
-        <div className="owner-room-form__chips">
-          {FACILITY_OPTIONS.map(({ label, icon: Icon }) => {
-            const active = form.facilities.includes(label);
-            return (
-              <button
-                key={label}
-                type="button"
-                className={`owner-room-form__chip${active ? ' owner-room-form__chip--active' : ''}`}
-                onClick={() => toggleFacility(label)}
-              >
-                <Icon className="owner-room-form__chip-icon" />
-                <span>{label}</span>
-              </button>
-            );
-          })}
-        </div>
+        <FacilitySelector
+          options={FACILITY_OPTIONS.map((item) => item.label)}
+          value={form.facilities}
+          onChange={(facilities) =>
+            setForm((current) => ({
+              ...current,
+              facilities,
+            }))
+          }
+        />
       </div>
 
       {message ? (

@@ -460,6 +460,8 @@ select {
   .navbar-divider {
     height: 40px;
   }
+}
+
 .owner-room-form {
   display: flex;
   flex-direction: column;
@@ -502,47 +504,15 @@ select {
   gap: 16px;
 }
 
-.owner-room-form__button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+.owner-room-form__action-button {
   min-width: 110px;
-  height: 44px;
-  padding: 0 20px;
-  border-radius: 9999px;
-  border: 1px solid var(--color-divider);
-  font-size: 14px;
-  font-weight: 600;
+  width: fit-content;
   text-transform: lowercase;
-  transition: 0.2s ease;
-  cursor: pointer;
 }
 
-.owner-room-form__button--secondary {
-  background: #ffffff;
+.owner-room-form__action-button--secondary {
+  border-color: var(--color-divider);
   color: #454545;
-}
-
-.owner-room-form__button--secondary:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.owner-room-form__button--primary {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: #ffffff;
-}
-
-.owner-room-form__button--primary:hover {
-  background: var(--color-primary-hover);
-  border-color: var(--color-primary-hover);
-}
-
-.owner-room-form__button:disabled {
-  opacity: 0.75;
-  cursor: not-allowed;
 }
 
 .owner-room-form__spinner {
@@ -648,43 +618,6 @@ select {
   gap: 12px;
 }
 
-.owner-room-form__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.owner-room-form__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 32px;
-  padding: 6px 12px;
-  border: 1px solid #8790a0;
-  border-radius: 9999px;
-  background: #ffffff;
-  color: #6b7280;
-  font-size: 12px;
-  transition: 0.2s ease;
-  cursor: pointer;
-}
-
-.owner-room-form__chip:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.owner-room-form__chip--active {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: #ffffff;
-}
-
-.owner-room-form__chip-icon {
-  width: 14px;
-  height: 14px;
-}
-
 .owner-room-form__message {
   margin: 0;
   padding: 14px 16px;
@@ -714,7 +647,7 @@ select {
     align-items: stretch;
   }
 
-  .owner-room-form__button {
+  .owner-room-form__action-button {
     width: 100%;
   }
 
@@ -726,5 +659,4 @@ select {
     grid-template-columns: 1fr;
     gap: 14px;
   }
-}
 }
