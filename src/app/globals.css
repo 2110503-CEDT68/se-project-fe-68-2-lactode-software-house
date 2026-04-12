@@ -409,6 +409,15 @@ select {
   @apply py-8 md:py-10 lg:py-12;
 }
 
+.hotel-card-detail-btn {
+  gap: 8px;
+}
+
+.hotel-card-detail-btn .btn-icon {
+  width: 20px;
+  height: 20px;
+}
+
 /* ========================
    RESPONSIVE
 ======================== */

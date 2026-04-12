@@ -1,110 +1,67 @@
-import FacilityList from "@/src/components/common/FacilityList";
-import PhotoGrid from "@/src/components/common/PhotoGrid";
-import AvailabilitySearch from "@/src/components/common/AvailabilitySearch";
-import HotelInfo from "@/src/components/hotel/HotelInfo";
-import RoomCard from "@/src/components/room/RoomCard";
-import Button from "@/src/components/common/Button";
-import { getHotelById } from "@/src/lib/hotels";
+import AvailabilitySearch from '@/src/components/common/AvailabilitySearch';
+import Button from '@/src/components/common/Button';
+import FacilityList from '@/src/components/common/FacilityList';
+import PhotoGrid from '@/src/components/common/PhotoGrid';
+import HotelInfo from '@/src/components/hotel/HotelInfo';
+import { getHotelById } from '@/src/lib/api';
 
-// Mock Data
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
-//Facility
-export const MOCK_FACILITIES: string[] = [
-  "Non-Smoking",
-  "Free Wi-Fi",
-  "Swimming Pool",
-  "Fitness Center",
-  "Parking",
-  "Restaurant",
-  "Bar/Lounge",
-  "Spa",
-  "Room Service",
-  "Laundry",
-  "Airport Shuttle",
-  "Pet Friendly",
-  "Air Conditioning",
-  "24-Hour Front Desk",
-];
+export default async function HotelDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-//Room
-export interface Room {
-  id: string;
-  name: string;
-  bedType: string;
-  available: number;
-  maxAdults: number;
-  image?: string | null;
-}
+  try {
+    const hotel = await getHotelById(id);
 
-export const MOCK_ROOMS: Room[] = [
-  {
-    id: "1",
-    name: "Deluxe King Room",
-    bedType: "King bed",
-    available: 3,
-    maxAdults: 2,
-    image: null,
-  },
-  {
-    id: "2",
-    name: "Twin Standard Room",
-    bedType: "2 Single beds",
-    available: 5,
-    maxAdults: 2,
-    image: null,
-  },
-  {
-    id: "3",
-    name: "Family Suite",
-    bedType: "King bed + 2 Single beds",
-    available: 1,
-    maxAdults: 4,
-    image: null,
-  },
-  {
-    id: "4",
-    name: "Superior Double Room",
-    bedType: "Double bed",
-    available: 0,
-    maxAdults: 2,
-    image: null,
-  },
-];
+    const images = hotel.pictures?.length ? hotel.pictures : [FALLBACK_IMAGE];
+    const facilities = hotel.facilities?.length
+      ? hotel.facilities
+      : ['Facilities information is not available.'];
 
-export default async function ViewHotelProfilePage({params} : {params:Promise<{id:string}>}) {
-
-  const {id} = await params;
-  const hotelDetail = await getHotelById(id)
-
-  return (
-    <main className="min-h-screen px-16 py-8">
+    return (
+      <main className="min-h-screen px-16 py-8">
         <div>
-            <Button variant="disabled" className="btn-md" href="/hotels">
-              Back
-            </Button>
+          <Button variant="disabled" className="btn-md" href="/hotels">
+            Back
+          </Button>
         </div>
 
         <div className="py-8 space-y-6">
-            <PhotoGrid images={hotelDetail.pictures}/>
+          <PhotoGrid images={images} />
 
-            <HotelInfo hotel={hotelDetail} />
+          <HotelInfo hotel={hotel} />
 
-            <section className="space-y-3">
-                <h2 className="text-subtitle">Facilities</h2>
-                <FacilityList facilities={MOCK_FACILITIES} />
-            </section>
+          <section className="space-y-3">
+            <h2 className="text-subtitle">Facilities</h2>
+            <FacilityList facilities={facilities} />
+          </section>
 
-            <section className="space-y-3">
-                <h2 className="text-subtitle">Availability</h2>
-                <AvailabilitySearch/>
-            </section>
-
-            <section className="space-y-4">
-                {/* <RoomCard room={MOCK_ROOMS[0]} />
-                <RoomCard room={MOCK_ROOMS[1]} />
-                <RoomCard room={MOCK_ROOMS[2]} /> */}
-            </section>
+          <section className="space-y-3">
+            <h2 className="text-subtitle">Availability</h2>
+            <AvailabilitySearch />
+          </section>
         </div>
-    </main>
-  );
+      </main>
+    );
+  } catch {
+    return (
+      <main className="min-h-screen px-16 py-8">
+        <div>
+          <Button variant="disabled" className="btn-md" href="/hotels">
+            Back
+          </Button>
+        </div>
+
+        <div className="py-8">
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+            Could not load hotel details.
+          </div>
+        </div>
+      </main>
+    );
+  }
 }

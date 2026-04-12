@@ -1,5 +1,7 @@
 import type { NextConfig } from 'next';
 
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1').replace(/\/$/, '');
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -8,6 +10,14 @@ const nextConfig: NextConfig = {
         hostname: 'images.unsplash.com'
       }
     ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api-proxy/:path*',
+        destination: `${API_BASE_URL}/:path*`
+      }
+    ];
   }
 };
 

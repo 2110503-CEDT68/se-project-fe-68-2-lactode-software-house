@@ -109,7 +109,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const hotelData = await getHotelsRequest();
       setHotels(hotelData);
     } catch (error) {
-      console.error(error);
+      setHotels([]);
+      console.warn(formatApiMessage(error, 'Cannot load hotels right now.'));
     }
   }, []);
 
@@ -123,7 +124,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const bookingData = await getBookingsRequest(token);
       setBookings(bookingData);
     } catch (error) {
-      console.error(error);
+      setBookings([]);
+      console.warn(formatApiMessage(error, 'Cannot load bookings right now.'));
     }
   }, [token]);
 
@@ -190,7 +192,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const bookingData = await getBookingsRequest(storedToken);
         setBookings(bookingData);
       } catch (error) {
-        console.error(error);
+        console.warn(formatApiMessage(error, 'Authentication session could not be restored.'));
         window.localStorage.removeItem(TOKEN_KEY);
         setToken(null);
         setUser(null);
@@ -212,7 +214,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const booking = await getBookingByIdRequest(bookingId, token);
         return booking;
       } catch (error) {
-        console.error(error);
+        console.warn(formatApiMessage(error, 'Cannot load booking details.'));
         return null;
       }
     },
