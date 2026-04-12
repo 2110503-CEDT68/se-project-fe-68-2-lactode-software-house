@@ -72,18 +72,43 @@ select {
 }
 
 /* ========================
-   REUSABLE TEXT
+  TEXT
 ======================== */
-.text-primary {
+.text-title {
   color: var(--color-text-primary);
+  font-size: 44px;
+  font-weight: bold;
 }
 
-.text-secondary {
+.text-subtitle {
+  color: var(--color-text-primary);
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.text-highlight {
+  color: var(--color-primary);
+  font-size: 20px;
+  font-weight: bold;
+  letter-spacing: 0.3em;
+}
+
+.text-detail {
   color: var(--color-text-secondary);
+  font-size: 24px;
 }
 
-.text-link {
-  color: var(--color-text-link);
+.text-subdetail {
+  color: var(--color-text-secondary);
+  font-size: 16px;
+}
+
+.text-error {
+  color: var(--color-error);
+}
+
+.bg-error-light {
+  background-color: var(--color-error-light);
 }
 
 /* ========================
@@ -108,13 +133,13 @@ select {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  min-width: 280px;
-  height: 112px;
+  width: 110px;
+  height: 44px;
   padding: 0 40px;
   border-radius: 9999px;
-  border: 2px solid transparent;
-  font-size: 28px;
-  font-weight: 700;
+  border: 1px solid transparent;
+  font-size: 16px;
+  font-weight: 600;
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
@@ -229,28 +254,27 @@ select {
 
 /* ===== size modifiers ===== */
 .btn-sm {
-  min-width: 120px;
-  height: 42px;
+  min-width: 100px;
+  width: fit-content;
+  height: 36px;
   padding: 0 18px;
   font-size: 14px;
 }
 
 .btn-md {
-  min-width: 160px;
+  min-width: 110px;
+  width: fit-content;
   height: 48px;
   padding: 0 22px;
   font-size: 16px;
 }
 
 .btn-lg {
-  min-width: 180px;
+  min-width: 100%;
   height: 56px;
+  border-radius: 20px;
   padding: 0 28px;
   font-size: 18px;
-}
-
-.btn-full {
-  width: 100%;
 }
 
 /* ========================
@@ -285,17 +309,6 @@ select {
 .badge-soft {
   background-color: var(--color-bg-card-2);
   color: var(--color-text-secondary);
-}
-
-/* ========================
-   ERROR
-======================== */
-.text-error {
-  color: var(--color-error);
-}
-
-.bg-error-light {
-  background-color: var(--color-error-light);
 }
 
 /* ========================
@@ -447,11 +460,6 @@ select {
   .navbar-divider {
     height: 40px;
   }
-}
-
-/* ========================
-   OWNER ROOM FORM
-======================== */
 .owner-room-form {
   display: flex;
   flex-direction: column;
@@ -718,4 +726,5 @@ select {
     grid-template-columns: 1fr;
     gap: 14px;
   }
+}
 }

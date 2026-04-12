@@ -52,19 +52,19 @@ export default function Navbar() {
 
           {role === 'user' && (
             <>
-              <Link href="/hotel" className="navbar-menu-item">
+              <Link href="/hotels" className="navbar-menu-item">
                 <BedDouble className="navbar-menu-icon" />
                 <span>Hotel</span>
               </Link>
 
-              <Link href="/my-booking" className="navbar-menu-item">
+              <Link href="/user/bookings" className="navbar-menu-item">
                 <BookUser className="navbar-menu-icon" />
                 <span>My Bookings</span>
               </Link>
 
               <div className="navbar-divider" />
 
-              <Link href="/profile" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/user/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
                 <span>{user?.name ?? 'Jame'}</span>
               </Link>
@@ -85,7 +85,7 @@ export default function Navbar() {
 
           {role === 'hotel owner' && (
             <>
-              <Link href="/owner/hotel" className="navbar-menu-item">
+              <Link href="/owner/hotels/123" className="navbar-menu-item">
                 <BedDouble className="navbar-menu-icon" />
                 <span>Hotel Management</span>
               </Link>
@@ -97,7 +97,7 @@ export default function Navbar() {
 
               <div className="navbar-divider" />
 
-              <Link href="/profile" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/owner/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
                 <span>Hotel</span>
               </Link>
@@ -123,14 +123,14 @@ export default function Navbar() {
                 <span>Admin dashboard</span>
               </Link>
 
-              <Link href="/hotel" className="navbar-menu-item">
+              <Link href="/admin/hotels" className="navbar-menu-item">
                 <BedDouble className="navbar-menu-icon" />
                 <span>Hotel</span>
               </Link>
 
               <div className="navbar-divider" />
 
-              <Link href="/profile" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/admin/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
                 <span>Admin</span>
               </Link>
