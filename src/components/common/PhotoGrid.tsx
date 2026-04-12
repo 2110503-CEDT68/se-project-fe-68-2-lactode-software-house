@@ -1,21 +1,3 @@
-interface PhotoGridProps {
-  images: string[];
-}
-
-// ── Mock Data ────────────────────────────────────────────────────────────────
-
-export const MOCK_IMAGES: string[] = [
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-  "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=400",
-  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400",
-  "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400",
-  "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=400",
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400",
-  "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=400",
-];
-
-// ── Component ────────────────────────────────────────────────────────────────
-
 export default function PhotoGrid({ images }: PhotoGridProps) {
   const GRID_HEIGHT = "420px";
 

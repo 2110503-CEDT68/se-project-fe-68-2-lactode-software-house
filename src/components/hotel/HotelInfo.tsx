@@ -1,29 +1,4 @@
-// components/HotelInfo.tsx
-
 import { Mail, Phone } from "lucide-react";
-
-export interface HotelInfoData {
-  name: string;
-  address: string;
-  province: string;
-  description: string;
-  phone: string;
-  email: string;
-}
-
-// ── Mock Data ────────────────────────────────────────────────────────────────
-
-export const MOCK_HOTEL_INFO: HotelInfoData = {
-  name: "Resort Villa brabra",
-  address: "Huai Kwang, Central, 342 Rama IV Road",
-  province: "Bangkok",
-  description:
-    "A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service. Perfect for both relaxation and family vacations.",
-  phone: "+66 76 123 456",
-  email: "contact@sunsetparadise.com",
-};
-
-// ── Component ────────────────────────────────────────────────────────────────
 
 export default function HotelInfo({ hotel }: { hotel: HotelInfoData }) {
   return (
