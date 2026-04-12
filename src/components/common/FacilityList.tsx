@@ -1,15 +1,23 @@
-import FacilityBadge from "./FacilityBadge";
+import FacilityBadge from './FacilityBadge';
+import { FACILITY_OPTIONS } from '@/src/constants/hotelFacilities';
 
-export default function FacilityList({ facilities }: { facilities: string[] }) {
-  if (facilities.length === 0) {
-    return <p className="text-sm text-gray-400">No facilities listed.</p>;
-  }
+type Props = {
+  facilities: string[];
+};
 
+export default function FacilityList({ facilities }: Props) {
   return (
-    <div className="flex flex-wrap gap-2">
-    {facilities.map((facility) => (
-        <FacilityBadge key={facility} label={facility} />
-    ))}
+    <div className="flex flex-wrap gap-3">
+      {FACILITY_OPTIONS.filter((f) =>
+        facilities.includes(f.label)
+      ).map(({ label, icon }) => (
+        <FacilityBadge
+          key={label}
+          label={label}
+          icon={icon}
+          active={false}
+        />
+      ))}
     </div>
   );
 }

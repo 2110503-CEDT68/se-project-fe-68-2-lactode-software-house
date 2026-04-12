@@ -22,7 +22,7 @@ export default function TextInput({
   return (
     <div className={`flex w-full flex-col gap-1 ${className}`}>
       {label && (
-        <label className="text-sm font-medium text-[var(--color-text-primary)]">
+        <label className="text-subdetail font-medium text-[var(--color-text-primary)]">
           {label}
         </label>
       )}
