@@ -110,8 +110,8 @@ export default function ViewRoomPage() {
   return (
     <main className="min-h-screen px-16 py-8">
         <div>
-            <Button variant="disabled" className="btn-md" onClick={() => history.back()}>
-                Back
+            <Button variant="disabled" className="btn-md" href="/hotels">
+              Back
             </Button>
         </div>
 
