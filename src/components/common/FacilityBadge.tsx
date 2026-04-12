@@ -1,21 +1,44 @@
-type FacilityBadgeProps = {
-    label: string;
-    active?: boolean;
-  };
-  
-  export default function FacilityBadge({
-    label,
-    active = false,
-  }: FacilityBadgeProps) {
-    return (
-      <span
-        className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-          active
-            ? "bg-[var(--color-primary)] text-white"
-            : "bg-[var(--color-bg-card-2)] text-[var(--color-text-secondary)]"
-        }`}
-      >
-        {label}
-      </span>
-    );
-  }
+import type { LucideIcon } from 'lucide-react';
+
+type Props = {
+  label: string;
+  icon: LucideIcon;
+  active?: boolean;
+  selectable?: boolean;
+  onClick?: () => void;
+};
+
+export default function FacilityBadge({
+  label,
+  icon: Icon,
+  active = false,
+  selectable = false,
+  onClick,
+}: Props) {
+  const Component = selectable ? 'button' : 'span';
+
+  return (
+    <Component
+      type={selectable ? 'button' : undefined}
+      onClick={selectable ? onClick : undefined}
+      className={[
+        'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition',
+
+        // ✅ ถ้าเป็น view (ไม่ selectable) → ขาวตลอด
+        !selectable
+          ? 'border-gray-200 bg-white text-[var(--color-text-primary)]'
+
+          // ✅ ถ้าเป็น select mode
+          : active
+          ? 'border-[var(--color-primary)] bg-[var(--color-primary)] text-white'
+          : 'border-gray-200 bg-white text-[var(--color-text-primary)]',
+
+        // cursor
+        selectable ? 'cursor-pointer hover:opacity-90' : 'cursor-default',
+      ].join(' ')}
+    >
+      <Icon className="h-4 w-4" />
+      <span>{label}</span>
+    </Component>
+  );
+}

@@ -1,0 +1,33 @@
+import {
+    Ban,
+    Wifi,
+    Waves,
+    Dumbbell,
+    Car,
+    UtensilsCrossed,
+    Wine,
+    Sparkles,
+    Bell,
+    Shirt,
+    Plane,
+    PawPrint,
+    Snowflake,
+    Clock,
+  } from 'lucide-react';
+  
+  export const FACILITY_OPTIONS = [
+    { label: 'Non-Smoking', icon: Ban },
+    { label: 'Free Wi-Fi', icon: Wifi },
+    { label: 'Swimming Pool', icon: Waves },
+    { label: 'Fitness Center', icon: Dumbbell },
+    { label: 'Parking', icon: Car },
+    { label: 'Restaurant', icon: UtensilsCrossed },
+    { label: 'Bar/Lounge', icon: Wine },
+    { label: 'Spa', icon: Sparkles },
+    { label: 'Room Service', icon: Bell },
+    { label: 'Laundry', icon: Shirt },
+    { label: 'Airport Shuttle', icon: Plane },
+    { label: 'Pet Friendly', icon: PawPrint },
+    { label: 'Air Conditioning', icon: Snowflake },
+    { label: '24-Hour Front Desk', icon: Clock },
+  ];

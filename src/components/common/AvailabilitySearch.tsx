@@ -4,6 +4,7 @@
 
 import { User } from "lucide-react";
 import { useState } from "react";
+import Button from "./Button";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,10 +23,10 @@ interface AvailabilitySearchProps {
 export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps) {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(0);
+  const [guests, setGuests] = useState("");
 
   const handleSearch = () => {
-    onSearch?.({ checkIn, checkOut, guests });
+    onSearch?.({ checkIn, checkOut, guests: Number(guests) });
   };
 
   return (
@@ -61,9 +62,9 @@ export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps
             type="number"
             min={0}
             value={guests}
-            onChange={(e) => setGuests(Number(e.target.value))}
+            onChange={(e) => setGuests(e.target.value)}
             className="w-16 text-sm text-gray-500 bg-transparent outline-none"
-            placeholder="0 people"
+            placeholder="0"
           />
           <span className="text-sm text-gray-400">people</span>
         </div>
@@ -71,13 +72,7 @@ export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps
       </div>
 
       {/* Search button */}
-      <button
-        onClick={handleSearch}
-        className="bg-blue-700 hover:bg-blue-800 text-white text-sm font-medium px-6 py-2.5 rounded-full transition-colors flex-shrink-0"
-      >
-        Search
-      </button>
-
+      <Button className="btn-md" onClick={handleSearch}>Search</Button>
     </div>
   );
 }
