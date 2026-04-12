@@ -1,6 +1,7 @@
+import { Hotel } from "@/types";
 import { Mail, Phone } from "lucide-react";
 
-export default function HotelInfo({ hotel }: { hotel: HotelInfoData }) {
+export default function HotelInfo({ hotel }: { hotel: Hotel }) {
   return (
     <div className="space-y-3">
 
@@ -9,7 +10,7 @@ export default function HotelInfo({ hotel }: { hotel: HotelInfoData }) {
 
       {/* Address */}
       <p className="text-detail">
-        {hotel.address}, {hotel.province}
+        {hotel.location}, {hotel.district}, {hotel.province}
       </p>
 
       {/* Description */}
@@ -21,7 +22,7 @@ export default function HotelInfo({ hotel }: { hotel: HotelInfoData }) {
         {/* Phone */}
         <div className="flex items-center gap-2 text-subdetail">
           <Phone className="w-4 h-4 flex-shrink-0"/>
-          {hotel.phone}
+          {hotel.tel}
         </div>
 
         {/* Email */}

@@ -1,4 +1,4 @@
-export default function PhotoGrid({ images }: PhotoGridProps) {
+export default function PhotoGrid({ images }: {images: string[]}) {
   const GRID_HEIGHT = "420px";
 
   // ── 0 images ──
@@ -13,7 +13,7 @@ export default function PhotoGrid({ images }: PhotoGridProps) {
     );
   }
 
-  // ── 1 image — full width, same height ──
+  // 1 image
   if (images.length === 1) {
     return (
       <div className="w-full rounded-2xl overflow-hidden" style={{ height: GRID_HEIGHT }}>
@@ -26,7 +26,7 @@ export default function PhotoGrid({ images }: PhotoGridProps) {
     );
   }
 
-  // ── 2 images — hero left, 1 thumb right (full height) ──
+  // 2 images
   if (images.length === 2) {
     return (
       <div
@@ -39,7 +39,7 @@ export default function PhotoGrid({ images }: PhotoGridProps) {
     );
   }
 
-  // ── 3 images — hero left (full height), 2 thumbs stacked right ──
+  // 3 images
   if (images.length === 3) {
     return (
       <div
@@ -57,7 +57,7 @@ export default function PhotoGrid({ images }: PhotoGridProps) {
     );
   }
 
-  // ── 4 images — hero left (full height), top-right full, bottom-right split 2 ──
+  // 4 images
   if (images.length === 4) {
     return (
       <div
@@ -79,7 +79,7 @@ export default function PhotoGrid({ images }: PhotoGridProps) {
     );
   }
 
-  // ── 5+ images — hero left, 2×2 grid right, last slot has "+X more" overlay ──
+  // 5+ images
   const hero = images[0];
   const thumbs = images.slice(1, 5);
   const remaining = images.length - 5;

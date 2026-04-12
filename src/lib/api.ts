@@ -1,4 +1,4 @@
-import { Booking, BookingInput, Hotel, LoginInput, RegisterInput, User } from '@/types';
+import { Booking, BookingInput, Hotel, LoginInput, RegisterInput, User, Room, RoomInput,} from '@/types';
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1').replace(/\/$/, '');
 
@@ -69,8 +69,29 @@ export async function logoutUser(token: string): Promise<void> {
   await request<{ success: boolean; data: Record<string, never> }>('/auth/logout', { method: 'GET' }, token);
 }
 
-export async function getHotels(): Promise<Hotel[]> {
-  const response = await request<{ success: boolean; data: Hotel[] }>('/hotels', { method: 'GET' });
+export async function createRoom(input: RoomInput, token: string): Promise<Room> {
+  const response = await request<{ success: boolean; data: Room }>(
+    `/hotels/${input.hotelId}/rooms`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        picture: input.picture,
+        title: input.roomType,
+        roomType: input.roomType,
+        price: input.price,
+        people: input.people,
+        bedType: input.bedType,
+        bed: input.bed,
+        description: input.description,
+        facilities: input.facilities,
+        avaliableNumber: input.avaliableNumber,
+        availableNumber: input.avaliableNumber,
+        status: input.status,
+      }),
+    },
+    token
+  );
+
   return response.data;
 }
 

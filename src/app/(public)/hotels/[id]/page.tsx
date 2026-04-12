@@ -1,47 +1,12 @@
-'use client'
 import FacilityList from "@/src/components/common/FacilityList";
 import PhotoGrid from "@/src/components/common/PhotoGrid";
 import AvailabilitySearch from "@/src/components/common/AvailabilitySearch";
 import HotelInfo from "@/src/components/hotel/HotelInfo";
 import RoomCard from "@/src/components/room/RoomCard";
 import Button from "@/src/components/common/Button";
+import { getHotelById } from "@/src/lib/hotels";
 
 // Mock Data
-
-//Hotel
-export interface HotelInfoData {
-  name: string;
-  address: string;
-  province: string;
-  description: string;
-  phone: string;
-  email: string;
-}
-
-export const MOCK_HOTEL_INFO: HotelInfoData = {
-  name: "Resort Villa brabra",
-  address: "Huai Kwang, Central, 342 Rama IV Road",
-  province: "Bangkok",
-  description:
-    "A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service. Perfect for both relaxation and family vacations.",
-  phone: "+66 76 123 456",
-  email: "contact@sunsetparadise.com",
-};
-
-//Image
-interface PhotoGridProps {
-  images: string[];
-}
-
-export const MOCK_IMAGES: string[] = [
-  "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-  "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=400",
-  "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400",
-  "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400",
-  "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=400",
-  "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400",
-  "https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?w=400",
-];
 
 //Facility
 export const MOCK_FACILITIES: string[] = [
@@ -106,7 +71,11 @@ export const MOCK_ROOMS: Room[] = [
   },
 ];
 
-export default function ViewRoomPage() {
+export default async function ViewHotelProfilePage({params} : {params:Promise<{id:string}>}) {
+
+  const {id} = await params;
+  const hotelDetail = await getHotelById(id)
+
   return (
     <main className="min-h-screen px-16 py-8">
         <div>
@@ -116,9 +85,9 @@ export default function ViewRoomPage() {
         </div>
 
         <div className="py-8 space-y-6">
-            <PhotoGrid images={MOCK_IMAGES}/>
+            <PhotoGrid images={hotelDetail.pictures}/>
 
-            <HotelInfo hotel={MOCK_HOTEL_INFO} />
+            <HotelInfo hotel={hotelDetail} />
 
             <section className="space-y-3">
                 <h2 className="text-subtitle">Facilities</h2>
@@ -127,15 +96,13 @@ export default function ViewRoomPage() {
 
             <section className="space-y-3">
                 <h2 className="text-subtitle">Availability</h2>
-                <AvailabilitySearch
-                onSearch={(values) => console.log(values)}
-                />
+                <AvailabilitySearch/>
             </section>
 
             <section className="space-y-4">
-                <RoomCard room={MOCK_ROOMS[0]} />
+                {/* <RoomCard room={MOCK_ROOMS[0]} />
                 <RoomCard room={MOCK_ROOMS[1]} />
-                <RoomCard room={MOCK_ROOMS[2]} />
+                <RoomCard room={MOCK_ROOMS[2]} /> */}
             </section>
         </div>
     </main>
