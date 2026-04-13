@@ -1,6 +1,7 @@
 import { Booking, BookingInput, Hotel, LoginInput, RegisterInput, Room, RoomInput, User } from '@/types';
 
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/api/v1').replace(/\/$/, '');
+const API_PROXY_PREFIX = '/api-proxy';
 
 export const TOKEN_KEY = 'hotel-booking-token';
 
@@ -14,6 +15,23 @@ export class ApiError extends Error {
   }
 }
 
+function normalizePath(path: string) {
+  return path.startsWith('/') ? path : `/${path}`;
+}
+
+function resolveRequestUrl(path: string) {
+  const normalizedPath = normalizePath(path);
+  const isAbsoluteApiBase = /^https?:\/\//i.test(API_BASE_URL);
+
+  // Browser calls to an absolute backend URL can fail due to CORS.
+  // Route them through Next.js rewrite proxy to keep same-origin requests.
+  if (typeof window !== 'undefined' && isAbsoluteApiBase) {
+    return `${API_PROXY_PREFIX}${normalizedPath}`;
+  }
+
+  return `${API_BASE_URL}${normalizedPath}`;
+}
+
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
   const headers = new Headers(options.headers ?? {});
   if (!headers.has('Content-Type') && options.body) {
@@ -23,18 +41,30 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers,
-    cache: 'no-store',
-  });
+  let response: Response;
+  try {
+    response = await fetch(resolveRequestUrl(path), {
+      ...options,
+      headers,
+      cache: 'no-store',
+    });
+  } catch {
+    throw new ApiError('Cannot connect to the API server. Please check backend availability.', 0);
+  }
 
   const text = await response.text();
-  const data = text ? JSON.parse(text) : {};
+  let data: Record<string, unknown> = {};
+  if (text) {
+    try {
+      data = JSON.parse(text) as Record<string, unknown>;
+    } catch {
+      data = { message: text };
+    }
+  }
 
   if (!response.ok || data.success === false) {
     const message = data.message || data.msg || 'Request failed';
-    throw new ApiError(message, response.status);
+    throw new ApiError(String(message), response.status);
   }
 
   return data as T;
@@ -100,6 +130,16 @@ export async function getRoomById(hotelId: string, roomId: string): Promise<Room
     `/hotels/${hotelId}/rooms/${roomId}`,
     { method: 'GET' }
   );
+  return response.data;
+}
+
+export async function getHotels(): Promise<Hotel[]> {
+  const response = await request<{ success: boolean; data: Hotel[] }>('/hotels', { method: 'GET' });
+  return response.data;
+}
+
+export async function getHotelById(id: string): Promise<Hotel> {
+  const response = await request<{ success: boolean; data: Hotel }>(`/hotels/${id}`, { method: 'GET' });
   return response.data;
 }
 
