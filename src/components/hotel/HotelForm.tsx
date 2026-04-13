@@ -147,7 +147,7 @@ export default function HotelForm({
   return (
     <form onSubmit={handleSubmit} className="mx-auto w-full max-w-[1180px] px-6 py-8">
       <div className="mb-8 flex items-center justify-between">
-        <Button type="button" onClick={handleCancel}>
+        <Button variant='disabled' onClick={handleCancel}>
           cancel
         </Button>
 
@@ -156,7 +156,7 @@ export default function HotelForm({
           variant="primary"
           className="rounded-full px-8 py-3"
         >
-          {mode === 'edit' ? 'save hotel' : 'create'}
+          {mode === 'edit' ? 'edit' : 'create'}
         </Button>
       </div>
 

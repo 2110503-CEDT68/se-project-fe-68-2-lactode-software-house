@@ -64,7 +64,7 @@ export default function Navbar() {
 
               <div className="navbar-divider" />
 
-              <Link href="/user/account" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
                 <span>{user?.name ?? 'Jame'}</span>
               </Link>
@@ -97,7 +97,7 @@ export default function Navbar() {
 
               <div className="navbar-divider" />
 
-              <Link href="/owner/account" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
                 <span>Hotel</span>
               </Link>
@@ -130,7 +130,7 @@ export default function Navbar() {
 
               <div className="navbar-divider" />
 
-              <Link href="/admin/account" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
                 <span>Admin</span>
               </Link>

@@ -8,7 +8,7 @@ export type HotelInfoData = {
 };
 
 export type RoomCardData = {
-  id: string;
+  _id: string;
   name: string;
   bedType: string;
   available: number;
@@ -55,7 +55,7 @@ export const MOCK_FACILITIES: string[] = [
 
 export const MOCK_ROOMS: RoomCardData[] = [
   {
-    id: '1',
+    _id: '1',
     name: 'Deluxe King Room',
     bedType: 'King bed',
     available: 3,
@@ -63,7 +63,7 @@ export const MOCK_ROOMS: RoomCardData[] = [
     image: null,
   },
   {
-    id: '2',
+    _id: '2',
     name: 'Twin Standard Room',
     bedType: '2 Single beds',
     available: 5,
@@ -71,7 +71,7 @@ export const MOCK_ROOMS: RoomCardData[] = [
     image: null,
   },
   {
-    id: '3',
+    _id: '3',
     name: 'Family Suite',
     bedType: 'King bed + 2 Single beds',
     available: 1,
@@ -79,7 +79,7 @@ export const MOCK_ROOMS: RoomCardData[] = [
     image: null,
   },
   {
-    id: '4',
+    _id: '4',
     name: 'Superior Double Room',
     bedType: 'Double bed',
     available: 0,
