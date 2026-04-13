@@ -13,11 +13,26 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
+type NavRole = 'guest' | 'user' | 'hotelOwner' | 'admin';
+
+function normalizeNavRole(rawRole: unknown): NavRole {
+  if (typeof rawRole !== 'string') return 'guest';
+  const value = rawRole.trim().toLowerCase();
+  if (value === 'admin') return 'admin';
+  if (value === 'user') return 'user';
+  if (['hotel owner', 'owner', 'hotelowner', 'hotel_owner', 'hotel-owner'].includes(value)) {
+    return 'hotelOwner';
+  }
+  return 'guest';
+}
+
 export default function Navbar() {
   const router = useRouter();
   const { user, logoutUser } = useApp();
 
-  const role = user?.role ?? 'guest';
+  const role = normalizeNavRole(user?.role);
+  const fullName = `${user?.firstname ?? ''} ${user?.lastname ?? ''}`.trim();
+  const displayName = user?.username || fullName || 'Account';
 
   return (
     <header className="navbar">
@@ -66,7 +81,7 @@ export default function Navbar() {
 
               <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
-                <span>{user?.name ?? 'Jame'}</span>
+                <span>{displayName}</span>
               </Link>
 
               <button
@@ -83,7 +98,7 @@ export default function Navbar() {
             </>
           )}
 
-          {role === 'hotel owner' && (
+          {role === 'hotelOwner' && (
             <>
               <Link href="/owner/hotels" className="navbar-menu-item">
                 <BedDouble className="navbar-menu-icon" />
@@ -99,7 +114,7 @@ export default function Navbar() {
 
               <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
-                <span>Hotel</span>
+                <span>{displayName}</span>
               </Link>
 
               <button
@@ -132,7 +147,7 @@ export default function Navbar() {
 
               <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
-                <span>Admin</span>
+                <span>{displayName}</span>
               </Link>
 
               <button

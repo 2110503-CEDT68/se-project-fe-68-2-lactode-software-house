@@ -16,6 +16,13 @@ type Props = {
 const getHotel = (hotel: Booking['hotel']) => (typeof hotel === 'string' ? null : (hotel as Hotel));
 const getUser = (user: Booking['user']) => (typeof user === 'string' ? null : (user as User));
 
+function getUserDisplayName(user: User | null) {
+  if (!user) return 'User';
+  const fullname = `${user.firstname ?? ''} ${user.lastname ?? ''}`.trim();
+  if (fullname) return fullname;
+  return user.username ?? 'User';
+}
+
 function formatDate(value: string) {
   return new Date(value).toLocaleDateString();
 }
@@ -73,8 +80,8 @@ export default function BookingTable({
               <div key={booking._id} className="grid gap-4 border-t border-slate-200 px-5 py-5 md:grid-cols-[1.5fr_1.2fr_0.8fr_1fr] md:items-center">
                 <div>
                   <p className="font-semibold text-slate-900">{hotel?.name ?? 'Hotel booking'}</p>
-                  <p className="mt-1 text-sm text-slate-500">{hotel ? `${hotel.province} · ${hotel.tel}` : 'Hotel details unavailable'}</p>
-                  {isAdmin ? <p className="mt-1 text-sm text-slate-500">{bookingUser?.name ?? 'User'} {bookingUser?.email ? `· ${bookingUser.email}` : ''}</p> : null}
+                  <p className="mt-1 text-sm text-slate-500">{hotel ? `${hotel.province} - ${hotel.tel}` : 'Hotel details unavailable'}</p>
+                  {isAdmin ? <p className="mt-1 text-sm text-slate-500">{getUserDisplayName(bookingUser)} {bookingUser?.email ? `- ${bookingUser.email}` : ''}</p> : null}
                 </div>
                 <div className="text-sm text-slate-600">
                   <p>{formatDate(booking.checkInDate)}</p>

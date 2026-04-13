@@ -28,6 +28,7 @@ function dateDiff(checkInDate: string, checkOutDate: string) {
 export default function BookingForm({ bookingId, defaultHotelId }: Props) {
   const router = useRouter();
   const { hotels, createBooking, fetchBookingById, loading, updateBooking, user } = useApp();
+  const fullName = `${user?.firstname ?? ''} ${user?.lastname ?? ''}`.trim() || user?.username || '';
 
   const [existing, setExisting] = useState<Booking | null>(null);
   const [message, setMessage] = useState('');
@@ -146,7 +147,7 @@ export default function BookingForm({ bookingId, defaultHotelId }: Props) {
     <span className="text-sm font-medium text-slate-700">Fullname</span>
     <input
       type="text"
-      value={user?.name || ''}
+      value={fullName}
       readOnly
       className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-slate-700 outline-none"
     />

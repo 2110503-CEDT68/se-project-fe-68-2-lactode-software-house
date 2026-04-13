@@ -18,6 +18,8 @@ type Mode = 'view' | 'edit-profile' | 'change-password';
 
 export default function AccountPage() {
   const { user, updateUser, updatePassword, logoutUser } = useApp();
+  const getFullName = (target: typeof user) =>
+    `${target?.firstname ?? ''} ${target?.lastname ?? ''}`.trim() || target?.username || '';
 
   const [mode, setMode] = useState<Mode>('view');
 
@@ -46,8 +48,8 @@ export default function AccountPage() {
     if (!user) return;
 
     setProfileForm({
-      firstname: user.name || '',
-      lastname: user.name || '',
+      firstname: user.firstname || '',
+      lastname: user.lastname || '',
       email: user.email || '',
       tel: user.tel || '',
     });
@@ -55,25 +57,25 @@ export default function AccountPage() {
 
   const fullName = useMemo(() => {
     if (!user) return '';
-    return `${user.name || ''} ${user.name || ''}`.trim();
+    return getFullName(user);
   }, [user]);
 
   const initial = useMemo(() => {
     if (!user) return 'U';
-    return user.name?.charAt(0).toUpperCase() || 'U';
+    return (user.firstname?.charAt(0) || user.lastname?.charAt(0) || user.username?.charAt(0) || 'U').toUpperCase();
   }, [user]);
 
   const roleLabel = useMemo(() => {
     if (!user) return 'User';
     if (user.role === 'admin') return 'Admin';
-    if (user.role === 'hotel owner') return 'Hotel';
+    if (user.role === 'hotelOwner') return 'Hotel';
     return 'User';
   }, [user]);
 
   const welcomeName = useMemo(() => {
     if (!user) return 'User';
     if (user.role === 'admin') return 'Admin';
-    if (user.role === 'hotel owner') return 'Owner';
+    if (user.role === 'hotelOwner') return 'Owner';
     return fullName;
   }, [user, fullName]);
 
@@ -87,7 +89,7 @@ export default function AccountPage() {
       ];
     }
 
-    if (user.role === 'hotel owner') {
+    if (user.role === 'hotelOwner') {
       return [
         { label: 'Hotel Profile', href: '/owner/hotels' },
         { label: 'Booking', href: '/owner/bookings' },
@@ -114,8 +116,8 @@ export default function AccountPage() {
     setPasswordError('');
 
     setProfileForm({
-      firstname: user.name || '',
-      lastname: user.name || '',
+      firstname: user.firstname || '',
+      lastname: user.lastname || '',
       email: user.email || '',
       tel: user.tel || '',
     });

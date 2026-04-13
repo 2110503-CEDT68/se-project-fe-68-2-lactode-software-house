@@ -19,7 +19,7 @@ export default function OwnerHotelPageClient() {
     const load = async () => {
       if (!ready) return;
 
-      if (!user || user.role !== 'hotel owner') {
+      if (!user || user.role !== 'hotelOwner') {
         setHotels([]);
         setError('Hotel owner access only.');
         return;

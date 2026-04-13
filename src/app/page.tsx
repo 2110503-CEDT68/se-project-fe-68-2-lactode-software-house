@@ -5,9 +5,11 @@ import { LogIn } from 'lucide-react';
 import { useApp } from '@/src/context/AppContext';
 
 export default function ExamplePage() {
-  const makeUser = (name: string, role: 'user' | 'hotel owner' | 'admin') => ({
-    _id: role === 'hotel owner' ? '69da0c7ff8190a65bcf5db14' : `${role}-${name.toLowerCase()}`,
-    name,
+  const makeUser = (name: string, role: 'user' | 'hotelOwner' | 'admin') => ({
+    _id: role === 'hotelOwner' ? '69da0c7ff8190a65bcf5db14' : `${role}-${name.toLowerCase()}`,
+    firstname: name,
+    lastname: role === 'admin' ? 'Admin' : role === 'hotelOwner' ? 'Owner' : 'User',
+    username: `${name} ${role === 'admin' ? 'Admin' : role === 'hotelOwner' ? 'Owner' : 'User'}`.trim(),
     email: `${name.toLowerCase()}@example.com`,
     tel: '012-345-6789',
     role,
@@ -23,7 +25,7 @@ export default function ExamplePage() {
           User
         </button>
 
-        <button onClick={() => setUser(makeUser('Owner', 'hotel owner'))} className="border px-3 py-1 rounded-full">
+        <button onClick={() => setUser(makeUser('Owner', 'hotelOwner'))} className="border px-3 py-1 rounded-full">
           Owner
         </button>
 

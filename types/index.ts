@@ -1,8 +1,10 @@
-type Role = 'user' | 'admin' | 'hotel owner'
+export type Role = 'guest' | 'user' | 'hotelOwner' | 'admin'
 
 export type User = {
   _id: string;
-  name: string;
+  firstname: string;
+  lastname: string;
+  username?: string;
   email: string;
   tel: string;
   role: Role;
@@ -51,7 +53,9 @@ export type Room = {
 };
 
 export type RegisterInput = {
-  name: string;
+  firstname: string;
+  lastname: string;
+  username: string;
   email: string;
   tel: string;
   password: string;

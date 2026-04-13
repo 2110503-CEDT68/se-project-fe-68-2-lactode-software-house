@@ -22,7 +22,7 @@ export default function EditHotelPage() {
     const fetchHotel = async () => {
       if (!ready) return;
 
-      if (!token || !user || (user.role !== 'hotel owner' && user.role !== 'admin')) {
+      if (!token || !user || (user.role !== 'hotelOwner' && user.role !== 'admin')) {
         setMessage('Hotel owner/admin access only. Please sign in first.');
         setData(null);
         setLoading(false);
