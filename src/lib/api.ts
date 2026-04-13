@@ -2,7 +2,7 @@ export { API_BASE_URL, TOKEN_KEY, ApiError, formatApiMessage } from './api/clien
 
 export { registerUser, loginUser, getMe, logoutUser, updateUser, updatePassword } from './api/auth';
 
-export { getHotels, getHotelsByOwnerId, getHotelById } from './api/hotels';
+export { getHotels, getHotelsByOwnerId, getHotelById, updateHotel } from './api/hotels';
 
 export { getBookings, getBookingById, createBooking, updateBooking, deleteBooking } from './api/bookings';
 
