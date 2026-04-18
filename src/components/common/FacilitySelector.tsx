@@ -1,16 +1,18 @@
 import FacilityBadge from './FacilityBadge';
-import { FACILITY_OPTIONS } from '@/src/constants/facilities';
+import { FacilityScope, getFacilityOptions } from '@/src/constants/facilities';
 
 interface Props {
   options: string[];
   value: string[];
   onChange: (value: string[]) => void;
+  scope?: FacilityScope;
 }
 
 export default function FacilitySelector({
   options,
   value,
   onChange,
+  scope = 'hotel',
 }: Props) {
   const toggle = (label: string) => {
     if (value.includes(label)) {
@@ -20,7 +22,7 @@ export default function FacilitySelector({
     }
   };
 
-  const filteredFacilities = FACILITY_OPTIONS.filter((facility) =>
+  const filteredFacilities = getFacilityOptions(scope).filter((facility) =>
     options.includes(facility.label)
   );
 

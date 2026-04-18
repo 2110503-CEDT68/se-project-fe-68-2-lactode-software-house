@@ -1,116 +1,84 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import AvailabilitySearch from '@/src/components/common/AvailabilitySearch';
+import Button from '@/src/components/common/Button';
 import FacilityList from '@/src/components/common/FacilityList';
 import PhotoGrid from '@/src/components/common/PhotoGrid';
-import AvailabilitySearch from '@/src/components/common/AvailabilitySearch';
 import HotelInfo from '@/src/components/hotel/HotelInfo';
-import RoomCard from '@/src/components/room/RoomCard';
-import Button from '@/src/components/common/Button';
-import { formatApiMessage, getHotelById } from '@/src/lib/api';
-import { MOCK_FACILITIES, MOCK_IMAGES, MOCK_ROOMS } from '@/src/lib/mockHotelDetail';
-import { Hotel } from '@/types';
+import RoomCardList from '@/src/components/room/RoomCardList';
+import { getHotelById, getRoomsByHotelId } from '@/src/lib/api';
 
-export default function ViewRoomPage() {
-  const router = useRouter();
-  const params = useParams<{ id: string | string[] }>();
-  const hotelIdParam = params?.id;
-  const hotelId = Array.isArray(hotelIdParam) ? hotelIdParam[0] : hotelIdParam;
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
-  const [hotel, setHotel] = useState<Hotel | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function HotelDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
-  useEffect(() => {
-    let ignore = false;
+  try {
+    const [hotel, rooms] = await Promise.all([
+      getHotelById(id),
+      getRoomsByHotelId(id).catch(() => []),
+    ]);
 
-    const loadHotel = async () => {
-      if (!hotelId) {
-        setHotel(null);
-        setError('No hotel ID provided.');
-        setLoading(false);
-        return;
-      }
+    const images = hotel.pictures?.length ? hotel.pictures : [FALLBACK_IMAGE];
+    const facilities = hotel.facilities?.length
+      ? hotel.facilities
+      : ['Facilities information is not available.'];
 
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getHotelById(hotelId);
-        if (!ignore) {
-          setHotel(data);
-        }
-      } catch (err) {
-        if (!ignore) {
-          setHotel(null);
-          setError(formatApiMessage(err, 'Could not load hotel data.'));
-        }
-      } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
-      }
-    };
-
-    loadHotel();
-
-    return () => {
-      ignore = true;
-    };
-  }, [hotelId]);
-
-  if (loading) {
     return (
       <main className="min-h-screen px-16 py-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-500">Loading hotel...</div>
+        <div className="flex items-center justify-between">
+          <Button variant="disabled" className="btn-md" href="/hotels">
+            Back
+          </Button>
+          <Button variant="primary" className="btn-md" href={`/owner/hotels/${id}/edit`}>
+            Edit
+          </Button>
+        </div>
+
+        <div className="py-8 space-y-6">
+          <PhotoGrid images={images} />
+
+          <HotelInfo hotel={hotel} />
+
+          <section className="space-y-3">
+            <h2 className="text-subtitle">Facilities</h2>
+            <FacilityList facilities={facilities} />
+          </section>
+
+          <section className="space-y-3">
+            <h2 className="text-subtitle">Availability</h2>
+            <AvailabilitySearch />
+          </section>
+
+          <section className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-subtitle">Rooms</h2>
+              <Button variant="primary" className="btn-sm" href={`/owner/hotels/${id}/rooms/create`}>
+                Create Room
+              </Button>
+            </div>
+            <RoomCardList rooms={rooms} detailBasePath="/owner/hotels" />
+          </section>
+        </div>
       </main>
     );
-  }
-
-  if (!hotel || error) {
+  } catch {
     return (
-      <main className="min-h-screen px-16 py-8 space-y-4">
-        <Button variant="disabled" className="btn-md" onClick={() => router.back()}>
-          Back
-        </Button>
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
-          {error ?? 'Hotel not found.'}
+      <main className="min-h-screen px-16 py-8">
+        <div>
+          <Button variant="disabled" className="btn-md" href="/hotels">
+            Back
+          </Button>
+        </div>
+
+        <div className="py-8">
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+            Could not load hotel details.
+          </div>
         </div>
       </main>
     );
   }
-
-  return (
-    <main className="min-h-screen px-16 py-8">
-      <div>
-        <Button variant="disabled" className="btn-md" onClick={() => router.back()}>
-          Back
-        </Button>
-      </div>
-
-      <div className="max-w-4xl py-8 space-y-6">
-        <PhotoGrid images={hotel.pictures?.length ? hotel.pictures : MOCK_IMAGES} />
-
-        <HotelInfo hotel={hotel} />
-
-        <section className="space-y-3">
-          <h2 className="text-subtitle">Facilities</h2>
-          <FacilityList facilities={hotel.facilities?.length ? hotel.facilities : MOCK_FACILITIES} />
-        </section>
-
-        <section className="space-y-3">
-          <h2 className="text-subtitle">Availability</h2>
-          <AvailabilitySearch
-            onSearch={(values) => console.log(values)}
-          />
-        </section>
-
-        <section className="space-y-4">
-          <RoomCard room={MOCK_ROOMS[0]} />
-          <RoomCard room={MOCK_ROOMS[1]} />
-          <RoomCard room={MOCK_ROOMS[2]} />
-        </section>
-      </div>
-    </main>
-  );
 }

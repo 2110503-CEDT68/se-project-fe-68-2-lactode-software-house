@@ -1,19 +1,39 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ImagePlus, LoaderCircle } from 'lucide-react';
 import Button from '@/src/components/common/Button';
 import FacilitySelector from '@/src/components/common/FacilitySelector';
 import TextInput from '@/src/components/common/TextInput';
-import { FACILITY_OPTIONS } from '@/src/constants/facilities';
-import { createRoom, formatApiMessage } from '@/src/lib/api';
+import { ROOM_FACILITY_OPTIONS } from '@/src/constants/facilities';
+import { createRoom, formatApiMessage, getRoomById, updateRoom } from '@/src/lib/api';
 import { useApp } from '@/src/context/AppContext';
 import { RoomInput } from '@/types';
 
 type Props = {
   hotelId: string;
+  mode?: 'create' | 'edit';
+  roomId?: string;
 };
+
+const ROOM_TYPE_OPTIONS = [
+  { value: 'single', label: 'Single' },
+  { value: 'double', label: 'Double' },
+  { value: 'twin', label: 'Twin' },
+  { value: 'suite', label: 'Suite' },
+  { value: 'deluxe', label: 'Deluxe' },
+  { value: 'family', label: 'Family' },
+  { value: 'studio', label: 'Studio' },
+] as const;
+
+const BED_TYPE_OPTIONS = [
+  { value: 'single', label: 'Single' },
+  { value: 'double', label: 'Double' },
+  { value: 'queen', label: 'Queen' },
+  { value: 'king', label: 'King' },
+  { value: 'twin', label: 'Twin' },
+] as const;
 
 type FormState = {
   roomType: string;
@@ -46,24 +66,75 @@ function parsePositiveNumber(value: string) {
 }
 
 function validateForm(state: FormState) {
-  if (!state.roomType.trim()) return 'Please enter the room type.';
+  if (!state.roomType.trim()) return 'Please select room type.';
   if (!parsePositiveNumber(state.avaliableNumber)) return 'Please enter a valid available number.';
   if (!parsePositiveNumber(state.price)) return 'Please enter a valid price.';
   if (!parsePositiveNumber(state.people)) return 'Please enter valid people per room.';
-  if (!state.bedType.trim()) return 'Please enter the bed type.';
+  if (!state.bedType.trim()) return 'Please select bed type.';
   if (!parsePositiveNumber(state.bed)) return 'Please enter bed count.';
   if (!state.description.trim()) return 'Please enter the room description.';
   return null;
 }
 
-export default function RoomCreateForm({ hotelId }: Props) {
+export default function RoomCreateForm({ hotelId, mode = 'create', roomId }: Props) {
   const router = useRouter();
   const { hotels, token } = useApp();
   const [form, setForm] = useState<FormState>(initialState);
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [loadingRoom, setLoadingRoom] = useState(mode === 'edit');
+  const isEditMode = mode === 'edit';
 
   const hotel = useMemo(() => hotels.find((item) => item._id === hotelId), [hotelId, hotels]);
+
+  useEffect(() => {
+    if (!isEditMode) {
+      setLoadingRoom(false);
+      return;
+    }
+
+    if (!roomId) {
+      setMessage('Missing room ID.');
+      setLoadingRoom(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setLoadingRoom(true);
+        setMessage('');
+        const room = await getRoomById(hotelId, roomId);
+        if (cancelled) return;
+
+        const availableNumber = room.availableNumber ?? room.avaliableNumber ?? 0;
+        setForm({
+          roomType: room.roomType ?? '',
+          avaliableNumber: availableNumber > 0 ? String(availableNumber) : '',
+          price: typeof room.price === 'number' ? String(room.price) : '',
+          people: typeof room.people === 'number' ? String(room.people) : '',
+          bedType: room.bedType ?? '',
+          bed: typeof room.bed === 'number' ? String(room.bed) : '',
+          description: room.description ?? '',
+          facilities: room.facilities?.length ? room.facilities : ['Free Wi-Fi'],
+          picture: room.picture ?? [],
+        });
+      } catch (error) {
+        if (!cancelled) {
+          setMessage(formatApiMessage(error, 'Cannot load room data.'));
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingRoom(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hotelId, isEditMode, roomId]);
 
   const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files ?? []);
@@ -105,7 +176,7 @@ export default function RoomCreateForm({ hotelId }: Props) {
       hotelId,
       picture: form.picture,
       roomType: form.roomType.trim(),
-      avaliableNumber: Number(form.avaliableNumber),
+      availableNumber: Number(form.avaliableNumber),
       price: Number(form.price),
       people: Number(form.people),
       bedType: form.bedType.trim(),
@@ -117,20 +188,58 @@ export default function RoomCreateForm({ hotelId }: Props) {
 
     try {
       setSubmitting(true);
-      await createRoom(payload, token);
-      router.push(`/owner/hotels/${hotelId}`);
+      if (isEditMode) {
+        if (!roomId) {
+          setMessage('Missing room ID.');
+          return;
+        }
+
+        await updateRoom(
+          hotelId,
+          roomId,
+          {
+            picture: payload.picture,
+            roomType: payload.roomType,
+            availableNumber: payload.availableNumber,
+            price: payload.price,
+            people: payload.people,
+            bedType: payload.bedType,
+            bed: payload.bed,
+            description: payload.description,
+            facilities: payload.facilities,
+            status: payload.status,
+          },
+          token
+        );
+
+        router.push(`/owner/hotels/${hotelId}/rooms/${roomId}`);
+      } else {
+        await createRoom(payload, token);
+        router.push(`/owner/hotels/${hotelId}`);
+      }
     } catch (error) {
-      setMessage(formatApiMessage(error, 'Cannot create room.'));
+      setMessage(formatApiMessage(error, isEditMode ? 'Cannot update room.' : 'Cannot create room.'));
     } finally {
       setSubmitting(false);
     }
   };
 
+  if (loadingRoom) {
+    return (
+      <div className="flex items-center justify-center gap-2 py-20 text-sm text-slate-500">
+        <LoaderCircle className="h-4 w-4 animate-spin" />
+        Loading room data...
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="owner-room-form">
       <div className="owner-room-form__heading">
-        <p className="owner-room-form__eyebrow">Create room</p>
-        <h1 className="owner-room-form__title">Add room for your hotel</h1>
+        <p className="owner-room-form__eyebrow">{isEditMode ? 'Edit room' : 'Create room'}</p>
+        <h1 className="owner-room-form__title">
+          {isEditMode ? 'Update room information' : 'Add room for your hotel'}
+        </h1>
         <p className="owner-room-form__subtitle">
           Fill information{hotel ? ` for ${hotel.name}` : ''}.
         </p>
@@ -153,7 +262,7 @@ export default function RoomCreateForm({ hotelId }: Props) {
           disabled={submitting}
           icon={submitting ? <LoaderCircle className="owner-room-form__spinner" /> : undefined}
         >
-          {submitting ? 'creating...' : 'create'}
+          {submitting ? (isEditMode ? 'saving...' : 'creating...') : isEditMode ? 'save change' : 'create'}
         </Button>
       </div>
 
@@ -170,13 +279,30 @@ export default function RoomCreateForm({ hotelId }: Props) {
       </label>
 
       <div className="owner-room-form__grid">
-        <TextInput
-          label="Room Type"
-          placeholder="Suite Room"
-          value={form.roomType}
-          onChange={(value) => setForm((current) => ({ ...current, roomType: value }))}
-          className="owner-room-form__field"
-        />
+        <label className="owner-room-form__field">
+          <p className="text-subdetail font-medium text-[var(--color-text-primary)]">Room Type</p>
+          <select
+            value={form.roomType}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                roomType: event.target.value,
+              }))
+            }
+            className={[
+              'w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm outline-none',
+              'focus:border-[var(--color-primary)]',
+            ].join(' ')}
+            style={{ color: form.roomType ? 'var(--color-text-primary)' : '#9ca3af' }}
+          >
+            <option value="">Select room type</option>
+            {ROOM_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
         <TextInput
           label="Room Amount"
@@ -208,13 +334,30 @@ export default function RoomCreateForm({ hotelId }: Props) {
           className="owner-room-form__field"
         />
 
-        <TextInput
-          label="Bed Type"
-          placeholder="King Size"
-          value={form.bedType}
-          onChange={(value) => setForm((current) => ({ ...current, bedType: value }))}
-          className="owner-room-form__field"
-        />
+        <label className="owner-room-form__field">
+          <p className="text-subdetail font-medium text-[var(--color-text-primary)]">Bed Type</p>
+          <select
+            value={form.bedType}
+            onChange={(event) =>
+              setForm((current) => ({
+                ...current,
+                bedType: event.target.value,
+              }))
+            }
+            className={[
+              'w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm outline-none',
+              'focus:border-[var(--color-primary)]',
+            ].join(' ')}
+            style={{ color: form.bedType ? 'var(--color-text-primary)' : '#9ca3af' }}
+          >
+            <option value="">Select bed type</option>
+            {BED_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
         <TextInput
           label="Bed"
@@ -228,8 +371,9 @@ export default function RoomCreateForm({ hotelId }: Props) {
       </div>
 
       <label className="owner-room-form__textarea-field">
-        <span>Description</span>
+        <p className="text-subdetail font-medium text-[var(--color-text-primary)]">Description</p>
         <textarea
+          className="text-sm text-[var(--color-text-primary)] placeholder:text-gray-400"
           rows={5}
           placeholder="A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service."
           value={form.description}
@@ -243,9 +387,10 @@ export default function RoomCreateForm({ hotelId }: Props) {
       </label>
 
       <div className="owner-room-form__facilities">
-        <span className="owner-room-form__section-title">Facilities</span>
+        <p className="text-subdetail font-medium text-[var(--color-text-primary)]">Facilities</p>
         <FacilitySelector
-          options={FACILITY_OPTIONS.map((item) => item.label)}
+          scope="room"
+          options={ROOM_FACILITY_OPTIONS.map((item) => item.label)}
           value={form.facilities}
           onChange={(facilities) =>
             setForm((current) => ({

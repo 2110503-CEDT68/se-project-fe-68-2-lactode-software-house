@@ -18,9 +18,10 @@ import {
   updateUser as updateUserRequest,
   updatePassword as updatePasswordRequest,
 } from '@/src/lib/api';
+import { getRoleLandingPath } from '@/src/lib/rolePath';
 import { Booking, BookingInput, Hotel, LoginInput, RegisterInput, User } from '@/types';
 
-type ActionResult = { ok: boolean; message: string };
+type ActionResult = { ok: boolean; message: string; redirectTo?: string };
 
 type AppContextValue = {
   apiBaseUrl: string;
@@ -39,10 +40,9 @@ type AppContextValue = {
   createBooking: (input: BookingInput) => Promise<ActionResult>;
   updateBooking: (bookingId: string, input: BookingInput) => Promise<ActionResult>;
   deleteBooking: (bookingId: string) => Promise<ActionResult>;
-  updateUser: (id: string, data: Partial<Pick<User, 'name' | 'email' | 'tel'>>) => Promise<ActionResult>;
+  updateUser: (data: Partial<Pick<User, 'firstname' | 'lastname' | 'username' | 'email' | 'tel'>>) => Promise<ActionResult>;
   updatePassword: (
-    id: string,
-    data: { currentPassword?: string; newPassword: string }
+    data: { currentPassword: string; newPassword: string; rePassword: string }
   ) => Promise<ActionResult>;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
 };
@@ -68,8 +68,8 @@ function toMidnightDate(value: string) {
   return new Date(`${value}T00:00:00`);
 }
 
-function validateBookingInput(input: BookingInput) {
-  if (!input.hotelId) {
+function validateBookingInput(input: BookingInput, requireHotel = true) {
+  if (requireHotel && !input.hotelId) {
     return 'Please select a hotel';
   }
 
@@ -114,32 +114,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const loadBookingsForToken = useCallback(async (activeToken: string) => {
+    try {
+      return await getBookingsRequest(activeToken);
+    } catch (error) {
+      console.warn(formatApiMessage(error, 'Cannot load bookings right now.'));
+      return [] as Booking[];
+    }
+  }, []);
+
   const refreshBookings = useCallback(async () => {
     if (!token) {
       setBookings([]);
       return;
     }
 
-    try {
-      const bookingData = await getBookingsRequest(token);
-      setBookings(bookingData);
-    } catch (error) {
-      setBookings([]);
-      console.warn(formatApiMessage(error, 'Cannot load bookings right now.'));
-    }
-  }, [token]);
+    const bookingData = await loadBookingsForToken(token);
+    setBookings(bookingData);
+  }, [loadBookingsForToken, token]);
 
   const updateUser = useCallback(
     async (
-      id: string,
-      data: Partial<Pick<User, 'name' | 'email' | 'tel'>>
+      data: Partial<Pick<User, 'firstname' | 'lastname' | 'username' | 'email' | 'tel'>>
     ): Promise<ActionResult> => {
       if (!token) {
         return { ok: false, message: 'Please sign in first.' };
       }
 
       try {
-        const updatedUser = await updateUserRequest(id, data, token);
+        const updatedUser = await updateUserRequest(data, token);
         setUser(updatedUser);
         return { ok: true, message: 'Profile updated successfully.' };
       } catch (error) {
@@ -151,15 +154,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const updatePassword = useCallback(
     async (
-      id: string,
-      data: { currentPassword?: string; newPassword: string }
+      data: { currentPassword: string; newPassword: string; rePassword: string }
     ): Promise<ActionResult> => {
       if (!token) {
         return { ok: false, message: 'Please sign in first.' };
       }
 
       try {
-        const response = await updatePasswordRequest(id, data, token);
+        const response = await updatePasswordRequest(data, token);
         return {
           ok: true,
           message: response?.msg || 'Password updated successfully.',
@@ -189,7 +191,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         const profile = await getMe(storedToken);
         setToken(storedToken);
         setUser(profile);
-        const bookingData = await getBookingsRequest(storedToken);
+        const bookingData = await loadBookingsForToken(storedToken);
         setBookings(bookingData);
       } catch (error) {
         console.warn(formatApiMessage(error, 'Authentication session could not be restored.'));
@@ -204,7 +206,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
 
     bootstrap();
-  }, [refreshHotels]);
+  }, [loadBookingsForToken, refreshHotels]);
 
   const fetchBookingById = useCallback(
     async (bookingId: string) => {
@@ -223,8 +225,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const registerUser = useCallback(async (input: RegisterInput): Promise<ActionResult> => {
     const tel = normalizePhone(input.tel);
+    const firstname = input.firstname.trim();
+    const lastname = input.lastname.trim();
+    const username = input.username.trim();
 
-    if (!input.name.trim() || !input.email.trim() || !input.password.trim() || !tel.trim()) {
+    if (!firstname || !lastname || !username || !input.email.trim() || !input.password.trim() || !tel.trim()) {
       return { ok: false, message: 'Please fill in all fields.' };
     }
 
@@ -238,7 +243,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     try {
       await registerUserRequest({
-        name: input.name.trim(),
+        firstname,
+        lastname,
+        username,
         email: input.email.trim().toLowerCase(),
         password: input.password,
         tel,
@@ -262,18 +269,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
 
       const profile = await getMe(nextToken);
-      const bookingData = await getBookingsRequest(nextToken);
+      const bookingData = await loadBookingsForToken(nextToken);
 
       window.localStorage.setItem(TOKEN_KEY, nextToken);
       setToken(nextToken);
       setUser(profile);
       setBookings(bookingData);
 
-      return { ok: true, message: 'Login successful.' };
+      return { ok: true, message: 'Login successful.', redirectTo: getRoleLandingPath(profile.role) };
     } catch (error) {
       return { ok: false, message: formatApiMessage(error, 'Cannot sign in right now.') };
     }
-  }, []);
+  }, [loadBookingsForToken]);
 
   const logoutUser = useCallback(async () => {
     try {
@@ -318,7 +325,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         return { ok: false, message: 'Please sign in first.' };
       }
 
-      const validationMessage = validateBookingInput(input);
+      const validationMessage = validateBookingInput(input, false);
       if (validationMessage) {
         return { ok: false, message: validationMessage };
       }

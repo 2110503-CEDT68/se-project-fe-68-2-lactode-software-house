@@ -4,7 +4,12 @@ import { LogIn } from 'lucide-react';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
-export default function HotelCard({ hotel }: { hotel: Hotel }) {
+type HotelCardProps = {
+  hotel: Hotel;
+  detailHref?: string;
+};
+
+export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
   const imageSrc = hotel.pictures?.[0] || FALLBACK_IMAGE;
 
   return (
@@ -34,7 +39,7 @@ export default function HotelCard({ hotel }: { hotel: Hotel }) {
               <p className="text-xl font-bold text-slate-900">Up to 3 Nights</p>
             </div>
             <Button
-              href={`/hotels/${hotel._id}`}
+              href={detailHref ?? `/hotels/${hotel._id}`}
               variant="primary-icon"
               icon={<LogIn size={20} strokeWidth={2}/>}
               className="btn-md hotel-card-detail-btn"

@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Mail, Phone, UserRound } from 'lucide-react';
+import { getRoomById } from '@/src/lib/api';
 import { useApp } from '@/src/context/AppContext';
-import { Booking } from '@/types';
+import { Booking, Room } from '@/types';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
@@ -11,11 +13,26 @@ const FALLBACK_IMAGE =
 type Props = {
   bookingId?: string;
   defaultHotelId?: string;
+  defaultRoomId?: string;
 };
+
+const SUBMIT_LOCK_MS = 1000;
 
 function formatDateInput(value?: string) {
   if (!value) return '';
-  return new Date(value).toISOString().slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return '';
+  }
+
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, '0');
+  const day = String(parsed.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function dateDiff(checkInDate: string, checkOutDate: string) {
@@ -25,16 +42,38 @@ function dateDiff(checkInDate: string, checkOutDate: string) {
   return Math.max(0, Math.round((end - start) / (1000 * 60 * 60 * 24)));
 }
 
-export default function BookingForm({ bookingId, defaultHotelId }: Props) {
+function addDays(dateInput: string, days: number) {
+  if (!dateInput) return '';
+  const date = new Date(`${dateInput}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return '';
+  date.setDate(date.getDate() + days);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }: Props) {
   const router = useRouter();
   const { hotels, createBooking, fetchBookingById, loading, updateBooking, user } = useApp();
+  const fullName = `${user?.firstname ?? ''} ${user?.lastname ?? ''}`.trim() || user?.username || '';
 
   const [existing, setExisting] = useState<Booking | null>(null);
   const [message, setMessage] = useState('');
   const [hydrating, setHydrating] = useState(Boolean(bookingId));
   const [hotelId, setHotelId] = useState(defaultHotelId ?? '');
+  const [roomId, setRoomId] = useState(defaultRoomId ?? '');
   const [checkInDate, setCheckInDate] = useState('');
   const [checkOutDate, setCheckOutDate] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [roomDetails, setRoomDetails] = useState<Room | null>(null);
 
   useEffect(() => {
     if (!bookingId) return;
@@ -50,7 +89,12 @@ export default function BookingForm({ bookingId, defaultHotelId }: Props) {
       setHydrating(false);
 
       if (booking) {
-        setHotelId(typeof booking.hotel === 'string' ? booking.hotel : booking.hotel._id);
+        const bookingHotel = booking.hotelID ?? booking.hotel;
+        setHotelId(typeof bookingHotel === 'string' ? bookingHotel : bookingHotel._id);
+        const bookingRoom = booking.roomID ?? booking.room;
+        if (bookingRoom) {
+          setRoomId(typeof bookingRoom === 'string' ? bookingRoom : bookingRoom._id);
+        }
         setCheckInDate(formatDateInput(booking.checkInDate));
         setCheckOutDate(formatDateInput(booking.checkOutDate));
       }
@@ -68,27 +112,103 @@ export default function BookingForm({ bookingId, defaultHotelId }: Props) {
     if (defaultHotelId) {
       setHotelId(defaultHotelId);
     }
-  }, [bookingId, defaultHotelId]);
+    if (defaultRoomId) {
+      setRoomId(defaultRoomId);
+    }
+  }, [bookingId, defaultHotelId, defaultRoomId]);
+
+  useEffect(() => {
+    if (!hotelId || !roomId) {
+      setRoomDetails(null);
+      return;
+    }
+
+    let ignore = false;
+
+    const loadRoomDetails = async () => {
+      try {
+        const room = await getRoomById(hotelId, roomId);
+        if (!ignore) {
+          setRoomDetails(room);
+        }
+      } catch {
+        if (!ignore) {
+          setRoomDetails(null);
+        }
+      }
+    };
+
+    loadRoomDetails();
+
+    return () => {
+      ignore = true;
+    };
+  }, [hotelId, roomId]);
 
   const selectedHotel = useMemo(
     () => hotels.find((hotel) => hotel._id === hotelId),
     [hotelId, hotels]
   );
+  const selectedRoom = useMemo(() => {
+    if (roomDetails) return roomDetails;
+    if (!selectedHotel || !roomId) return null;
+    if (!Array.isArray(selectedHotel.rooms)) return null;
+
+    const room = selectedHotel.rooms.find((item) => typeof item !== 'string' && item._id === roomId);
+    return (room ?? null) as Room | null;
+  }, [roomDetails, roomId, selectedHotel]);
+  const overviewFacilities =
+    selectedRoom?.facilities?.length
+      ? selectedRoom.facilities
+      : selectedHotel?.facilities?.length
+        ? selectedHotel.facilities
+        : [];
+  const roomTypeText = selectedRoom?.roomType ?? 'A';
+  const peopleText = selectedRoom?.people ?? 2;
+  const bedText = selectedRoom ? `${selectedRoom.bedType} x${selectedRoom.bed}` : 'King size bed x1';
+  const priceText = selectedRoom?.price ?? 500;
 
   const nights = dateDiff(checkInDate, checkOutDate);
+  const minCheckOutDate = checkInDate ? addDays(checkInDate, 1) : undefined;
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (isSubmitting) return;
 
-    if (!hotelId) {
+    if (!bookingId && !hotelId) {
       setMessage('Hotel not found.');
       return;
     }
 
-    const payload = { hotelId, checkInDate, checkOutDate };
-    const result = bookingId
-      ? await updateBooking(bookingId, payload)
-      : await createBooking(payload);
+    if (!checkInDate || !checkOutDate) {
+      setMessage('Please select booking dates.');
+      return;
+    }
+
+    if (checkOutDate <= checkInDate) {
+      setMessage('Check-out date must be after check-in date.');
+      return;
+    }
+
+    if (dateDiff(checkInDate, checkOutDate) > 3) {
+      setMessage('Booking cannot exceed 3 days.');
+      return;
+    }
+
+    const payload = { hotelId, roomId: roomId || undefined, checkInDate, checkOutDate };
+    let result: Awaited<ReturnType<typeof updateBooking>>;
+
+    setIsSubmitting(true);
+    try {
+      [result] = await Promise.all([
+        bookingId
+          ? updateBooking(bookingId, payload)
+          : createBooking(payload),
+        sleep(SUBMIT_LOCK_MS),
+      ]);
+    } finally {
+      setIsSubmitting(false);
+    }
 
     setMessage(result.message);
 
@@ -146,7 +266,7 @@ export default function BookingForm({ bookingId, defaultHotelId }: Props) {
     <span className="text-sm font-medium text-slate-700">Fullname</span>
     <input
       type="text"
-      value={user?.name || ''}
+      value={fullName}
       readOnly
       className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-slate-700 outline-none"
     />
@@ -180,7 +300,15 @@ export default function BookingForm({ bookingId, defaultHotelId }: Props) {
     <input
       type="date"
       value={checkInDate}
-      onChange={(event) => setCheckInDate(event.target.value)}
+      onChange={(event) => {
+        const nextCheckInDate = event.target.value;
+        setCheckInDate(nextCheckInDate);
+
+        if (!nextCheckInDate) return;
+        if (!checkOutDate || checkOutDate <= nextCheckInDate) {
+          setCheckOutDate(addDays(nextCheckInDate, 1));
+        }
+      }}
       className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500"
     />
   </label>
@@ -192,6 +320,7 @@ export default function BookingForm({ bookingId, defaultHotelId }: Props) {
       type="date"
       value={checkOutDate}
       onChange={(event) => setCheckOutDate(event.target.value)}
+      min={minCheckOutDate}
       className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500"
     />
   </label>
@@ -220,19 +349,22 @@ export default function BookingForm({ bookingId, defaultHotelId }: Props) {
           </p>
         ) : null}
 
-        <button className="mt-6 w-full rounded-2xl bg-brand-500 px-5 py-4 text-base font-semibold text-white transition hover:bg-brand-600">
-          {bookingId ? 'Save changes' : 'Confirm booking'}
+        <button
+          disabled={isSubmitting}
+          className="mt-6 w-full rounded-2xl bg-brand-500 px-5 py-4 text-base font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {isSubmitting ? 'Processing...' : bookingId ? 'Save changes' : 'Confirm booking'}
         </button>
       </form>
 
       <aside className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">
-          Hotel overview
+          Hotel Overview
         </p>
 
         {selectedHotel ? (
-          <div className="mt-4 space-y-4">
-            <div className="overflow-hidden rounded-3xl">
+          <div className="mt-4 space-y-5">
+            <div className="overflow-hidden rounded-3xl border border-slate-200">
               <img
                 src={selectedHotel.image || FALLBACK_IMAGE}
                 alt={selectedHotel.name}
@@ -243,14 +375,47 @@ export default function BookingForm({ bookingId, defaultHotelId }: Props) {
             <div>
               <h2 className="text-2xl font-bold text-slate-900">{selectedHotel.name}</h2>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                {selectedHotel.address}, {selectedHotel.district}, {selectedHotel.province},{' '}
-                {selectedHotel.region}
+                {selectedHotel.address}, {selectedHotel.district}, {selectedHotel.province}
               </p>
+
+              <div className="mt-4 space-y-2 text-sm text-slate-600">
+                <div className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 text-slate-500" />
+                  <span>{selectedHotel.tel}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-slate-500" />
+                  <span>{selectedHotel.email}</span>
+                </div>
+              </div>
             </div>
 
             <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-              <p>{selectedHotel.tel}</p>
-              <p className="mt-1">Postal code: {selectedHotel.postalcode}</p>
+              <div className="space-y-1.5">
+                <p>Room type : {roomTypeText}</p>
+                <p>People : {peopleText}</p>
+                <p>{bedText}</p>
+                <p>Price : {priceText} baht/day</p>
+              </div>
+
+              <p className="mt-4 font-semibold text-slate-700">Facilities</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {overviewFacilities.slice(0, 2).map((facility) => (
+                  <span
+                    key={facility}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-600"
+                  >
+                    <UserRound className="h-3.5 w-3.5 text-brand-500" />
+                    {facility}
+                  </span>
+                ))}
+                {overviewFacilities.length > 2 ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs text-slate-600">
+                    <UserRound className="h-3.5 w-3.5 text-brand-500" />
+                    More ...
+                  </span>
+                ) : null}
+              </div>
             </div>
           </div>
         ) : (

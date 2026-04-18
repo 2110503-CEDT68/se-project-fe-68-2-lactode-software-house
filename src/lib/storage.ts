@@ -6,7 +6,9 @@ export const CURRENT_USER_KEY = 'tum-dai-d-current-user';
 
 export const adminSeed: User = {
   _id: 'admin-1',
-  name: 'Jame',
+  firstname: 'Jame',
+  lastname: 'Admin',
+  username: 'Jame Admin',
   email: 'admin@tumdaid.com',
   tel: '099-999-9999',
   role: 'admin',

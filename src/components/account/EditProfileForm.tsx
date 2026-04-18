@@ -1,6 +1,7 @@
 import Button from '@/src/components/common/Button';
 
 export type ProfileFormState = {
+  username: string;
   firstname: string;
   lastname: string;
   email: string;
@@ -50,6 +51,17 @@ export default function EditProfileForm({
             type="text"
             value={values.lastname}
             onChange={(e) => onChange({ ...values, lastname: e.target.value })}
+          />
+        </div>
+
+        <div className="account-form__field">
+          <label htmlFor="account-username">Username</label>
+          <input
+            id="account-username"
+            className="input"
+            type="text"
+            value={values.username}
+            onChange={(e) => onChange({ ...values, username: e.target.value })}
           />
         </div>
 

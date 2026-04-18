@@ -12,17 +12,23 @@ import {
   User as UserIcon,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { getRoleLandingPath, normalizeRoleForPath } from '@/src/lib/rolePath';
+
+type NavRole = 'guest' | 'user' | 'hotelOwner' | 'admin';
 
 export default function Navbar() {
   const router = useRouter();
   const { user, logoutUser } = useApp();
 
-  const role = user?.role ?? 'guest';
+  const role = normalizeRoleForPath(user?.role) as NavRole;
+  const homePath = getRoleLandingPath(user?.role);
+  const fullName = `${user?.firstname ?? ''} ${user?.lastname ?? ''}`.trim();
+  const displayName = user?.username || fullName || 'Account';
 
   return (
     <header className="navbar">
       <div className="navbar-container">
-        <Link href="/" className="navbar-logo">
+        <Link href={homePath} className="navbar-logo">
           <div className="navbar-logo-icon">
             <Building2 className="navbar-logo-building" />
           </div>
@@ -66,7 +72,7 @@ export default function Navbar() {
 
               <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
-                <span>{user?.name ?? 'Jame'}</span>
+                <span>{displayName}</span>
               </Link>
 
               <button
@@ -83,9 +89,9 @@ export default function Navbar() {
             </>
           )}
 
-          {role === 'hotel owner' && (
+          {role === 'hotelOwner' && (
             <>
-              <Link href="/owner/hotels/123" className="navbar-menu-item">
+              <Link href="/owner/hotels" className="navbar-menu-item">
                 <BedDouble className="navbar-menu-icon" />
                 <span>Hotel Management</span>
               </Link>
@@ -99,7 +105,7 @@ export default function Navbar() {
 
               <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
-                <span>Hotel</span>
+                <span>{displayName}</span>
               </Link>
 
               <button
@@ -132,7 +138,7 @@ export default function Navbar() {
 
               <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account" />
-                <span>Admin</span>
+                <span>{displayName}</span>
               </Link>
 
               <button

@@ -1,53 +1,77 @@
-import { User } from "lucide-react";
-import Button from "../common/Button";
+import { User } from 'lucide-react';
+import { Room } from '@/types';
 import { RoomCardData } from '@/src/lib/mockHotelDetail';
+import Button from '../common/Button';
 
-// ── Props ────────────────────────────────────────────────────────────────────
+const ROOM_FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1000&q=80';
+
+type RoomCardInput = RoomCardData | Room;
 
 interface RoomCardProps {
-  room: RoomCardData;
-  onDetail?: (room: RoomCardData) => void;
+  room: RoomCardInput;
+  onDetail?: (room: RoomCardInput) => void;
+  detailBasePath?: string;
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+function isApiRoom(room: RoomCardInput): room is Room {
+  return 'roomType' in room;
+}
 
-export default function RoomCard({ room, onDetail }: RoomCardProps) {
+export default function RoomCard({ room, onDetail, detailBasePath = '/hotels' }: RoomCardProps) {
+  const hotelRef = isApiRoom(room) ? room.hotelID ?? room.hotel : null;
+  const hotelId =
+    typeof hotelRef === 'string'
+      ? hotelRef
+      : hotelRef && typeof hotelRef === 'object' && '_id' in hotelRef
+        ? String(hotelRef._id)
+        : null;
+  const detailHref = hotelId
+    ? `${detailBasePath}/${encodeURIComponent(hotelId)}/rooms/${encodeURIComponent(room._id)}`
+    : null;
+
+  const name = isApiRoom(room) ? room.roomType : room.name;
+  const available = isApiRoom(room) ? room.availableNumber ?? room.avaliableNumber ?? 0 : room.available;
+  const maxAdults = isApiRoom(room) ? room.people : room.maxAdults;
+  const image = isApiRoom(room)
+    ? room.image ?? room.picture?.[0] ?? ROOM_FALLBACK_IMAGE
+    : room.image ?? ROOM_FALLBACK_IMAGE;
+
   return (
-    <div className="flex items-center gap-5 bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
-
-      {/* Room image */}
-      <div className="w-36 h-28 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center flex-shrink-0 bg-gray-50 overflow-hidden">
-        {room.image ? (
-          <img
-            src={room.image}
-            alt={room.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <span className="text-gray-400 font-semibold text-sm">pic</span>
-        )}
+    <div className="flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+      <div className="flex h-28 w-36 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50">
+        <img
+          src={image}
+          alt={name}
+          className="h-full w-full object-cover"
+          onError={(event) => {
+            const target = event.currentTarget;
+            if (target.src === ROOM_FALLBACK_IMAGE) return;
+            target.src = ROOM_FALLBACK_IMAGE;
+          }}
+        />
       </div>
 
-      {/* Room info */}
       <div className="flex-1">
-        <h3 className="font-semibold text-gray-900">{room.name}</h3>
-        <p className="text-sm text-gray-500 mt-0.5">{room.bedType}</p>
-        <p className="text-sm text-gray-500">available : {room.available}</p>
-        <div className="flex items-center gap-1.5 mt-2 text-sm text-gray-600">
-          <User className="w-4 h-4"/>
-          max {room.maxAdults} adults
+        <h3 className="font-semibold text-gray-900">{name}</h3>
+        <p className="mt-0.5 text-sm text-gray-500">{room.bedType}</p>
+        <p className="text-sm text-gray-500">available : {available}</p>
+        <div className="mt-2 flex items-center gap-1.5 text-sm text-gray-600">
+          <User className="h-4 w-4" />
+          max {maxAdults} adults
         </div>
       </div>
 
-      {/* Detail button */}
       <div className="self-end">
-        <Button
-          variant="primary"
-          className="btn-sm"
-          onClick={() => onDetail?.(room)}
-        >
-          Detail
-        </Button>
+        {detailHref ? (
+          <Button variant="primary" className="btn-sm" href={detailHref}>
+            Detail
+          </Button>
+        ) : (
+          <Button variant="primary" className="btn-sm" onClick={() => onDetail?.(room)} disabled={!onDetail}>
+            Detail
+          </Button>
+        )}
       </div>
     </div>
   );

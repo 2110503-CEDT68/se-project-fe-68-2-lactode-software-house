@@ -2,6 +2,7 @@ import Button from '@/src/components/common/Button';
 
 type AccountInfoCardProps = {
     fullName: string;
+    username: string;
     email: string;
     tel: string;
     onLogout: () => void;
@@ -11,6 +12,7 @@ type AccountInfoCardProps = {
 
 export default function AccountInfoCard({
     fullName,
+    username,
     email,
     tel,
     onLogout,
@@ -30,6 +32,10 @@ export default function AccountInfoCard({
                 <div className="card-soft account-info-box">
                     <p className="account-info-box__label text-caption">Email</p>
                     <p className="account-info-box__value text-body">{email || '-'}</p>
+                </div>
+                <div className="card-soft account-info-box">
+                    <p className="account-info-box__label text-caption">Username</p>
+                    <p className="account-info-box__value text-body">{username || '-'}</p>
                 </div>
 
                 <div className="card-soft account-info-box">

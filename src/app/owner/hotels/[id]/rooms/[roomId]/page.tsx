@@ -1,79 +1,55 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { BedDouble, Check, CircleDollarSign, UserRound } from 'lucide-react';
+import Button from '@/src/components/common/Button';
+import FacilityList from '@/src/components/common/FacilityList';
+import PhotoGrid from '@/src/components/common/PhotoGrid';
 import { useApp } from '@/src/context/AppContext';
-import { FACILITY_OPTIONS } from '@/src/constants/facilities';
-import { formatApiMessage, getHotelById, getRoomById } from '@/src/lib/api';
+import { ROOM_FACILITY_OPTIONS } from '@/src/constants/facilities';
+import { deleteRoom, formatApiMessage, getHotelById, getRoomById } from '@/src/lib/api';
 import { Hotel, Room } from '@/types';
 
-// ── Icon helpers ──────────────────────────────────────────
-function IconCheck() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-      stroke="#2B4EE6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="2 8 6.5 12.5 14 4" />
-    </svg>
-  );
-}
-function IconBed() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-      stroke="#5A5F6E" strokeWidth="1.7" strokeLinecap="round">
-      <rect x="1" y="7.5" width="14" height="7" rx="1.5" />
-      <path d="M4 7.5V6a4 4 0 018 0v1.5" />
-    </svg>
-  );
-}
-function IconPerson() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-      stroke="#5A5F6E" strokeWidth="1.7" strokeLinecap="round">
-      <circle cx="8" cy="5" r="3" />
-      <path d="M2 14c0-3.3 2.7-5 6-5s6 1.7 6 5" />
-    </svg>
-  );
-}
-function IconClock() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-      stroke="#5A5F6E" strokeWidth="1.7" strokeLinecap="round">
-      <circle cx="8" cy="8" r="6.5" />
-      <path d="M8 4.5v3.5l2 2" />
-    </svg>
-  );
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
+
+function toReadable(value: string) {
+  return value
+    .split('_')
+    .filter(Boolean)
+    .map((chunk) => chunk.charAt(0).toUpperCase() + chunk.slice(1))
+    .join(' ');
 }
 
-// ── Main Component ────────────────────────────────────────
 export default function RoomDetailPage() {
-  const router  = useRouter();
-  const params  = useParams();
+  const router = useRouter();
+  const params = useParams<{ id: string | string[]; roomId: string | string[] }>();
 
-  // Route: /hotel/[hotelId]/rooms/[roomId]  OR  /hotel/[id]
-  // Supports both: viewing a hotel (with rooms) OR a specific room
-  const hotelId = params?.hotelId as string ?? params?.id as string ?? '';
-  const roomId  = params?.roomId as string | undefined;
+  const hotelId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  const roomId = Array.isArray(params?.roomId) ? params.roomId[0] : params?.roomId;
 
-  const { user, hotels, ready, loading } = useApp();
+  const { user, hotels, ready, loading, token } = useApp();
 
   const cachedHotel = useMemo(
     () => (hotelId ? hotels.find((item) => item._id === hotelId) ?? null : null),
     [hotelId, hotels]
   );
 
-  const [hotel, setHotel]       = useState<Hotel | null>(cachedHotel);
-  const [room, setRoom]         = useState<Room | null>(null);
+  const [hotel, setHotel] = useState<Hotel | null>(cachedHotel);
+  const [room, setRoom] = useState<Room | null>(null);
   const [fetching, setFetching] = useState(false);
-  const [error, setError]       = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  // ── Fetch hotel + room data ───────────────────────────
   useEffect(() => {
     if (!ready) return;
 
-    if (!hotelId) {
+    if (!hotelId || !roomId) {
       setHotel(null);
       setRoom(null);
-      setError('No hotel ID provided.');
+      setLoadError('Missing hotel ID or room ID.');
       setFetching(false);
       return;
     }
@@ -83,25 +59,22 @@ export default function RoomDetailPage() {
     (async () => {
       try {
         setFetching(true);
-        setError(null);
-        const hotelData = cachedHotel ?? await getHotelById(hotelId);
+        setLoadError(null);
+
+        const [hotelData, roomData] = await Promise.all([
+          cachedHotel ? Promise.resolve(cachedHotel) : getHotelById(hotelId),
+          getRoomById(hotelId, roomId),
+        ]);
+
         if (!cancelled) {
           setHotel(hotelData);
+          setRoom(roomData);
         }
-
-        if (roomId) {
-          const roomData = await getRoomById(hotelId, roomId);
-          if (!cancelled) {
-            setRoom(roomData);
-          }
-        } else if (!cancelled) {
-          setRoom(null);
-        }
-      } catch (e) {
+      } catch (error) {
         if (!cancelled) {
           setHotel(null);
           setRoom(null);
-          setError(formatApiMessage(e, 'Could not load data.'));
+          setLoadError(formatApiMessage(error, 'Could not load room data.'));
         }
       } finally {
         if (!cancelled) {
@@ -115,197 +88,164 @@ export default function RoomDetailPage() {
     };
   }, [cachedHotel, hotelId, roomId, ready]);
 
-  // ── Loading ───────────────────────────────────────────
-  if (!ready || loading || fetching) {
-    return (
-      <main className="mx-auto max-w-4xl px-6 py-10">
-        <div className="flex items-center justify-center gap-3 py-20 text-sm text-slate-400">
-          <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
-          Loading room…
-        </div>
-      </main>
-    );
-  }
+  const handleDelete = async () => {
+    if (!hotelId || !roomId) {
+      setActionError('Missing hotel ID or room ID.');
+      return;
+    }
 
-  // ── Error ─────────────────────────────────────────────
-  if (error || !hotel) {
-    return (
-      <main className="mx-auto max-w-4xl px-6 py-10">
-        <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
-          {error ?? 'Hotel not found.'}
-        </div>
-        <button
-          onClick={() => router.push('/owner/hotels')}
-          className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-medium transition hover:bg-slate-50"
-        >
-          ← Back to hotels
-        </button>
-      </main>
-    );
-  }
+    if (!token) {
+      setActionError('Please sign in first.');
+      return;
+    }
 
-  // ── Use room data if available, else fall back to hotel-level data ──
-  // This lets the page work both as hotel view AND room view
-  const displayImage       = room?.picture?.[0] ?? hotel.image ?? null;
-  const displayTitle       = room ? `${room.roomType}` : hotel.name;
-  const displayDescription = room?.description
-    ?? 'A cozy and comfortable room perfect for guests. Features a queen-size bed, air conditioning, free WiFi, and a private bathroom.';
-  const displayPrice       = room?.price ?? null;
-  const displayPeople      = room?.people ?? null;
-  const displayBedType     = room?.bedType ?? null;
-  const displayBedCount    = room?.bed ?? null;
-  const displayAvailable   = room?.avaliableNumber ?? room?.availableNumber ?? null;
+    const shouldDelete = window.confirm('Are you sure you want to delete this room?');
+    if (!shouldDelete) return;
 
-  // Facilities: use real room facilities if available,
-  // otherwise show all FACILITY_OPTIONS as a preview
-  const activeFacilities = room?.facilities ?? FACILITY_OPTIONS.map((f) => f.label);
-
-  // ── Book button — auth-aware ──────────────────────────
-  const handleBook = () => {
-    if (user) {
-      router.push(`/user/bookings/create?hotelId=${hotel._id}${room ? `&roomId=${room._id}` : ''}`);
-    } else {
-      router.push('/signin');
+    try {
+      setDeleting(true);
+      setActionError(null);
+      await deleteRoom(hotelId, roomId, token);
+      router.push(`/owner/hotels/${hotelId}`);
+    } catch (error) {
+      setActionError(formatApiMessage(error, 'Cannot delete room.'));
+    } finally {
+      setDeleting(false);
     }
   };
 
-  // ── Render ────────────────────────────────────────────
-  return (
-    <main className="mx-auto max-w-4xl px-6 py-7 pb-16">
+  if (!ready || loading || fetching) {
+    return (
+      <main className="min-h-screen px-16 py-8">
+        <div className="flex items-center justify-center gap-3 py-20 text-sm text-slate-400">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
+          Loading room...
+        </div>
+      </main>
+    );
+  }
 
-      {/* ← Back */}
-      <button
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium transition hover:bg-slate-50"
-      >
-        ← Back
-      </button>
-
-      {/* Two-column grid */}
-      <div className="mt-5 grid grid-cols-1 items-start gap-9 md:grid-cols-[1fr_220px]">
-
-        {/* ── LEFT: image · info · facilities ── */}
+  if (loadError || !hotel || !room) {
+    return (
+      <main className="min-h-screen px-16 py-8">
         <div>
+          <Button variant="disabled" className="btn-md" onClick={() => router.push('/owner/hotels')}>
+            Back
+          </Button>
+        </div>
 
-          {/* Room image */}
-          <div className="flex aspect-video items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            {displayImage ? (
-              <img
-                src={displayImage}
-                alt={displayTitle}
-                className="h-full w-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-              />
-            ) : (
-              <span className="text-base italic text-slate-400">pic</span>
-            )}
+        <div className="py-8">
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+            {loadError ?? 'Room not found.'}
           </div>
+        </div>
+      </main>
+    );
+  }
 
-          {/* Title */}
-          <h1 className="mt-6 font-serif text-3xl font-normal tracking-tight text-slate-900">
-            {displayTitle}
-          </h1>
+  const displayAvailable = room.availableNumber ?? room.avaliableNumber ?? 0;
+  const activeFacilities = room.facilities?.length
+    ? room.facilities
+    : ROOM_FACILITY_OPTIONS.slice(0, 3).map((facility) => facility.value);
 
-          {/* Description */}
-          <p className="mt-3 text-sm leading-relaxed text-slate-500">
-            {displayDescription}
+  const galleryImages = (() => {
+    const sources = [
+      ...(Array.isArray(room.picture) ? room.picture : []),
+      ...(room.image ? [room.image] : []),
+      ...(Array.isArray(hotel.pictures) ? hotel.pictures : []),
+      ...(hotel.image ? [hotel.image] : []),
+    ].filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+
+    const unique = Array.from(new Set(sources));
+    return unique.length > 0 ? unique : [FALLBACK_IMAGE];
+  })();
+
+  const roomTypeLabel = toReadable(room.roomType || 'room');
+  const bedTypeLabel = toReadable(room.bedType || 'bed');
+  const roomEditHref =
+    hotelId && roomId ? `/owner/hotels/${hotelId}/rooms/${roomId}/edit` : '/owner/hotels';
+  const backToHotel = hotelId ? `/owner/hotels/${hotelId}` : '/owner/hotels';
+  const hotelLocation = [hotel.location, hotel.district, hotel.province]
+    .filter((value) => Boolean(value?.trim()))
+    .join(', ');
+  const canManage = user?.role === 'hotelOwner' || user?.role === 'admin';
+  const canDelete = canManage && Boolean(token);
+
+  return (
+    <main className="min-h-screen px-16 py-8">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="disabled" className="btn-md" onClick={() => router.push(backToHotel)}>
+            Back
+          </Button>
+          {canManage ? (
+            <Button variant="primary" className="btn-md" href={roomEditHref}>
+              Edit
+            </Button>
+          ) : null}
+        </div>
+
+        {canManage ? (
+          <Button variant="danger" className="btn-md" onClick={handleDelete} disabled={deleting || !canDelete}>
+            {deleting ? 'Deleting...' : 'Delete'}
+          </Button>
+        ) : null}
+      </div>
+
+      {actionError ? (
+        <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
+          {actionError}
+        </div>
+      ) : null}
+
+      <div className="py-8 space-y-6">
+        <PhotoGrid images={galleryImages} fallbackImage={FALLBACK_IMAGE} />
+
+        <section className="space-y-3">
+          <h1 className="text-title">Room Type {roomTypeLabel}</h1>
+          <p className="text-subdetail">
+            {room.description?.trim() ||
+              'A cozy and comfortable room perfect for guests. Features practical amenities and a private bathroom.'}
           </p>
+        </section>
 
-          {/* Facilities — uses real FACILITY_OPTIONS from facilities.ts */}
-          <h2 className="mb-4 mt-7 text-lg font-semibold text-slate-900">Facilities</h2>
-          <div className="flex flex-wrap gap-2">
-            {FACILITY_OPTIONS.map(({ label, icon: Icon }) => {
-              const isActive = activeFacilities.includes(label);
-              return (
-                <span
-                  key={label}
-                  className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition
-                    ${isActive
-                      ? 'border-blue-200 bg-blue-50 text-blue-700'
-                      : 'border-slate-200 bg-white text-slate-400'
-                    }`}
-                >
-                  <Icon className="h-3 w-3" />
-                  {label}
-                </span>
-              );
-            })}
-          </div>
-
-          {/* Book / Sign-in button */}
-          <button
-            onClick={handleBook}
-            className="mt-6 inline-flex items-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
-          >
-            {user ? 'Book this room' : 'Sign in to Book'}
-          </button>
-
-        </div>
-
-        {/* ── RIGHT: stats panel ── */}
-        <div className="flex flex-col gap-4 pt-1">
-
-          {/* Room Available */}
-          {displayAvailable !== null && (
-            <div className="flex items-center gap-2.5 text-sm">
-              <span className="flex w-[18px] shrink-0 items-center justify-center">
-                <IconCheck />
+        <div className="space-y-4 pt-1 text-subdetail text-[var(--color-text-secondary)]">
+            <div className="flex items-center gap-4">
+              <CircleDollarSign className="h-6 w-6 text-brand-500" />
+              <span>{room.price} baht/day</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <UserRound className="h-6 w-6 text-brand-500" />
+              <span>
+                {room.people} {room.people === 1 ? 'person' : 'people'}
               </span>
-              Room Available : {displayAvailable}
             </div>
-          )}
-
-          {/* Bed type + count */}
-          {displayBedType && (
-            <div className="flex items-center gap-2.5 text-sm">
-              <span className="flex w-[18px] shrink-0 items-center justify-center">
-                <IconBed />
+            <div className="flex items-center gap-4">
+              <BedDouble className="h-6 w-6 text-brand-500" />
+              <span>
+                {bedTypeLabel} Size Bed : {room.bed}
               </span>
-              {displayBedType} : {displayBedCount}
             </div>
-          )}
-
-          {/* People */}
-          {displayPeople !== null && (
-            <div className="flex items-center gap-2.5 text-sm">
-              <span className="flex w-[18px] shrink-0 items-center justify-center">
-                <IconPerson />
-              </span>
-              {displayPeople} {displayPeople === 1 ? 'person' : 'people'}
-            </div>
-          )}
-
-          {/* Price */}
-          {displayPrice !== null && (
-            <div className="flex items-center gap-2.5 text-sm">
-              <span className="flex w-[18px] shrink-0 items-center justify-center">
-                <IconClock />
-              </span>
-              {displayPrice} baht/day
-            </div>
-          )}
-
-          {/* Hotel info */}
-          <div className="mt-1 flex flex-col gap-3 border-t border-slate-200 pt-4">
-            <div>
-              <div className="mb-0.5 text-xs text-slate-400">Hotel</div>
-              <div className="text-sm font-semibold">{hotel.name}</div>
-            </div>
-            <div>
-              <div className="mb-0.5 text-xs text-slate-400">Province</div>
-              <div className="text-sm font-semibold">{hotel.province}</div>
-            </div>
-            <div>
-              <div className="mb-0.5 text-xs text-slate-400">Region</div>
-              <div className="text-sm font-semibold">{hotel.region}</div>
-            </div>
-            <div>
-              <div className="mb-0.5 text-xs text-slate-400">Tel</div>
-              <div className="text-sm font-semibold">{hotel.tel}</div>
+            <div className="flex items-center gap-4">
+              <Check className="h-6 w-6 text-brand-500" />
+              <span>Room Available : {displayAvailable}</span>
             </div>
           </div>
 
-        </div>
+        <section className="space-y-3">
+          <h2 className="text-subtitle">Facilities</h2>
+          <FacilityList facilities={activeFacilities} scope="room" />
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="text-subtitle">Hotel</h2>
+          <div className="card-soft space-y-2">
+            <p className="text-detail">{hotel.name?.trim() || 'Hotel name unavailable'}</p>
+            <p className="text-subdetail">{hotelLocation || 'Location unavailable'}</p>
+            <p className="text-subdetail">Tel: {hotel.tel?.trim() || 'Phone unavailable'}</p>
+            <p className="text-subdetail">Email: {hotel.email?.trim() || 'Email unavailable'}</p>
+          </div>
+        </section>
       </div>
     </main>
   );

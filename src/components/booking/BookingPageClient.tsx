@@ -7,6 +7,7 @@ import BookingForm from '@/src/components/booking/BookingForm';
 export default function BookingPageClient() {
   const searchParams = useSearchParams();
   const hotelId = searchParams.get('hotelId');
+  const roomId = searchParams.get('roomId');
   const { user, ready } = useApp();
 
   if (!ready) {
@@ -17,5 +18,5 @@ export default function BookingPageClient() {
     return <div className="p-6 text-center">Please login before booking</div>;
   }
 
-  return <BookingForm defaultHotelId={hotelId || undefined}  />;
+  return <BookingForm defaultHotelId={hotelId || undefined} defaultRoomId={roomId || undefined} />;
 }

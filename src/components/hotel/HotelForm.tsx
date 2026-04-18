@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import FacilitySelector from '../common/FacilitySelector';
-import { FACILITY_OPTIONS } from '@/src/constants/facilities';
+import { HOTEL_FACILITY_OPTIONS } from '@/src/constants/facilities';
 
 export interface HotelFormData {
   name: string;
@@ -271,7 +271,8 @@ export default function HotelForm({
           <h2 className="mb-5 text-subtitle">Facilities</h2>
 
           <FacilitySelector
-            options={FACILITY_OPTIONS.map((item) => item.label)}
+            scope="hotel"
+            options={HOTEL_FACILITY_OPTIONS.map((item) => item.label)}
             value={form.facilities}
             onChange={(value) =>
               setForm((prev) => ({

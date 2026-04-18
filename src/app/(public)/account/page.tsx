@@ -18,10 +18,13 @@ type Mode = 'view' | 'edit-profile' | 'change-password';
 
 export default function AccountPage() {
   const { user, updateUser, updatePassword, logoutUser } = useApp();
+  const getFullName = (target: typeof user) =>
+    `${target?.firstname ?? ''} ${target?.lastname ?? ''}`.trim() || target?.username || '';
 
   const [mode, setMode] = useState<Mode>('view');
 
   const [profileForm, setProfileForm] = useState<ProfileFormState>({
+    username: '',
     firstname: '',
     lastname: '',
     email: '',
@@ -46,8 +49,9 @@ export default function AccountPage() {
     if (!user) return;
 
     setProfileForm({
-      firstname: user.name || '',
-      lastname: user.name || '',
+      username: user.username || '',
+      firstname: user.firstname || '',
+      lastname: user.lastname || '',
       email: user.email || '',
       tel: user.tel || '',
     });
@@ -55,25 +59,25 @@ export default function AccountPage() {
 
   const fullName = useMemo(() => {
     if (!user) return '';
-    return `${user.name || ''} ${user.name || ''}`.trim();
+    return getFullName(user);
   }, [user]);
 
   const initial = useMemo(() => {
     if (!user) return 'U';
-    return user.name?.charAt(0).toUpperCase() || 'U';
+    return (user.firstname?.charAt(0) || user.lastname?.charAt(0) || user.username?.charAt(0) || 'U').toUpperCase();
   }, [user]);
 
   const roleLabel = useMemo(() => {
     if (!user) return 'User';
     if (user.role === 'admin') return 'Admin';
-    if (user.role === 'hotel owner') return 'Hotel';
+    if (user.role === 'hotelOwner') return 'Hotel';
     return 'User';
   }, [user]);
 
   const welcomeName = useMemo(() => {
     if (!user) return 'User';
     if (user.role === 'admin') return 'Admin';
-    if (user.role === 'hotel owner') return 'Owner';
+    if (user.role === 'hotelOwner') return 'Owner';
     return fullName;
   }, [user, fullName]);
 
@@ -87,7 +91,7 @@ export default function AccountPage() {
       ];
     }
 
-    if (user.role === 'hotel owner') {
+    if (user.role === 'hotelOwner') {
       return [
         { label: 'Hotel Profile', href: '/owner/hotels' },
         { label: 'Booking', href: '/owner/bookings' },
@@ -114,11 +118,92 @@ export default function AccountPage() {
     setPasswordError('');
 
     setProfileForm({
-      firstname: user.name || '',
-      lastname: user.name || '',
+      username: user.username || '',
+      firstname: user.firstname || '',
+      lastname: user.lastname || '',
       email: user.email || '',
       tel: user.tel || '',
     });
+  };
+
+  const handleProfileSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!user) return;
+
+    setProfileError('');
+    setProfileMessage('');
+
+    const username = profileForm.username.trim();
+    const firstname = profileForm.firstname.trim();
+    const lastname = profileForm.lastname.trim();
+    const email = profileForm.email.trim().toLowerCase();
+    const tel = profileForm.tel.trim();
+
+    if (!username || !firstname || !lastname || !email || !tel) {
+      setProfileError('Please fill in all fields.');
+      return;
+    }
+
+    setProfileLoading(true);
+    const result = await updateUser({
+      username,
+      firstname,
+      lastname,
+      email,
+      tel,
+    });
+    setProfileLoading(false);
+
+    if (!result.ok) {
+      setProfileError(result.message);
+      return;
+    }
+
+    setProfileMessage(result.message);
+    setMode('view');
+  };
+
+  const handlePasswordSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!user) return;
+
+    setPasswordError('');
+    setPasswordMessage('');
+
+    const currentPassword = passwordForm.currentPassword.trim();
+    const newPassword = passwordForm.newPassword.trim();
+    const rePassword = passwordForm.confirmPassword.trim();
+
+    if (!currentPassword || !newPassword || !rePassword) {
+      setPasswordError('Please fill in all fields.');
+      return;
+    }
+
+    if (newPassword !== rePassword) {
+      setPasswordError('New password confirmation mismatch.');
+      return;
+    }
+
+    setPasswordLoading(true);
+    const result = await updatePassword({
+      currentPassword,
+      newPassword,
+      rePassword,
+    });
+    setPasswordLoading(false);
+
+    if (!result.ok) {
+      setPasswordError(result.message);
+      return;
+    }
+
+    setPasswordMessage(result.message);
+    setPasswordForm({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    });
+    setMode('view');
   };
 
   const openChangePasswordMode = () => {
@@ -183,6 +268,7 @@ export default function AccountPage() {
             {mode === 'view' && (
               <AccountInfoCard
                 fullName={fullName}
+                username={user.username || ''}
                 email={user.email}
                 tel={user.tel}
                 onLogout={logoutUser}
@@ -198,7 +284,7 @@ export default function AccountPage() {
                 loading={profileLoading}
                 onChange={setProfileForm}
                 onCancel={openViewMode}
-                onSubmit={() => {}}
+                onSubmit={handleProfileSubmit}
               />
             )}
 
@@ -209,7 +295,7 @@ export default function AccountPage() {
                 loading={passwordLoading}
                 onChange={setPasswordForm}
                 onCancel={openViewMode}
-                onSubmit={() => {}}
+                onSubmit={handlePasswordSubmit}
               />
             )}
 

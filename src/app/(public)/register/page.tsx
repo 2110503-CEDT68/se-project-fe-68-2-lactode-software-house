@@ -15,7 +15,9 @@ function formatPhoneInput(value: string) {
 export default function RegisterPage() {
   const router = useRouter();
   const { registerUser } = useApp();
-  const [name, setName] = useState('');
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [tel, setTel] = useState('');
   const [password, setPassword] = useState('');
@@ -24,13 +26,13 @@ export default function RegisterPage() {
 
   return (
     <main className="px-4 py-16 sm:px-6 lg:px-8">
-      <AuthCard title="Create account" subtitle="Register with your name, email, telephone number, and password.">
+      <AuthCard title="Create account" subtitle="Register with your first name, last name, username, email, telephone number, and password.">
         <form
           className="space-y-5"
           onSubmit={async (event) => {
             event.preventDefault();
             setSubmitting(true);
-            const result = await registerUser({ name, email, tel, password });
+            const result = await registerUser({ firstname, lastname, username, email, tel, password });
             setMessage(result.message);
             setSubmitting(false);
             if (result.ok) {
@@ -39,8 +41,16 @@ export default function RegisterPage() {
           }}
         >
           <label className="block space-y-2">
-            <span className="text-sm font-medium text-slate-700">Name</span>
-            <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Your name" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+            <span className="text-sm font-medium text-slate-700">First Name</span>
+            <input value={firstname} onChange={(event) => setFirstname(event.target.value)} placeholder="First name" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+          </label>
+          <label className="block space-y-2">
+            <span className="text-sm font-medium text-slate-700">Last Name</span>
+            <input value={lastname} onChange={(event) => setLastname(event.target.value)} placeholder="Last name" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+          </label>
+          <label className="block space-y-2">
+            <span className="text-sm font-medium text-slate-700">Username</span>
+            <input required value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Display name" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Email</span>

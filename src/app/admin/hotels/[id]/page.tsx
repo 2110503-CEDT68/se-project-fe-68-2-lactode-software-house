@@ -6,11 +6,11 @@ import FacilityList from '@/src/components/common/FacilityList';
 import PhotoGrid from '@/src/components/common/PhotoGrid';
 import AvailabilitySearch from '@/src/components/common/AvailabilitySearch';
 import HotelInfo from '@/src/components/hotel/HotelInfo';
-import RoomCard from '@/src/components/room/RoomCard';
+import RoomCardList from '@/src/components/room/RoomCardList';
 import Button from '@/src/components/common/Button';
-import { formatApiMessage, getHotelById } from '@/src/lib/api';
-import { MOCK_FACILITIES, MOCK_IMAGES, MOCK_ROOMS } from '@/src/lib/mockHotelDetail';
-import { Hotel } from '@/types';
+import { formatApiMessage, getHotelById, getRoomsByHotelId } from '@/src/lib/api';
+import { MOCK_FACILITIES, MOCK_IMAGES } from '@/src/lib/mockHotelDetail';
+import { Hotel, Room } from '@/types';
 
 export default function ViewHotelProfilePage() {
   const router = useRouter();
@@ -19,6 +19,7 @@ export default function ViewHotelProfilePage() {
   const hotelId = Array.isArray(hotelIdParam) ? hotelIdParam[0] : hotelIdParam;
 
   const [hotel, setHotel] = useState<Hotel | null>(null);
+  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +29,7 @@ export default function ViewHotelProfilePage() {
     const loadHotel = async () => {
       if (!hotelId) {
         setHotel(null);
+        setRooms([]);
         setError('No hotel ID provided.');
         setLoading(false);
         return;
@@ -36,13 +38,18 @@ export default function ViewHotelProfilePage() {
       try {
         setLoading(true);
         setError(null);
-        const data = await getHotelById(hotelId);
+        const [hotelData, roomData] = await Promise.all([
+          getHotelById(hotelId),
+          getRoomsByHotelId(hotelId).catch(() => []),
+        ]);
         if (!ignore) {
-          setHotel(data);
+          setHotel(hotelData);
+          setRooms(roomData);
         }
       } catch (err) {
         if (!ignore) {
           setHotel(null);
+          setRooms([]);
           setError(formatApiMessage(err, 'Could not load hotel data.'));
         }
       } finally {
@@ -103,10 +110,9 @@ export default function ViewHotelProfilePage() {
           <AvailabilitySearch />
         </section>
 
-        <section className="space-y-4">
-          <RoomCard room={MOCK_ROOMS[0]} />
-          <RoomCard room={MOCK_ROOMS[1]} />
-          <RoomCard room={MOCK_ROOMS[2]} />
+        <section className="space-y-3">
+          <h2 className="text-subtitle">Rooms</h2>
+          <RoomCardList rooms={rooms} />
         </section>
       </div>
     </main>

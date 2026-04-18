@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import AuthCard from '@/src/components/common/AuthCard';
 import { useApp } from '@/src/context/AppContext';
+import { getRoleLandingPath } from '@/src/lib/rolePath';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,7 +27,7 @@ export default function LoginPage() {
             setMessage(result.message);
             setSubmitting(false);
             if (result.ok) {
-              router.push('/hotels');
+              router.push(result.redirectTo ?? getRoleLandingPath('guest'));
             }
           }}
         >
