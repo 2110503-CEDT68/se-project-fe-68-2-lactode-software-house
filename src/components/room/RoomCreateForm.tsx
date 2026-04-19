@@ -15,6 +15,7 @@ type Props = {
   hotelId: string;
   mode?: 'create' | 'edit';
   roomId?: string;
+  basePath?: string;
 };
 
 const ROOM_TYPE_OPTIONS = [
@@ -76,7 +77,7 @@ function validateForm(state: FormState) {
   return null;
 }
 
-export default function RoomCreateForm({ hotelId, mode = 'create', roomId }: Props) {
+export default function RoomCreateForm({ hotelId, mode = 'create', roomId, basePath = '/owner/hotels' }: Props) {
   const router = useRouter();
   const { hotels, token } = useApp();
   const [form, setForm] = useState<FormState>(initialState);
@@ -212,10 +213,10 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId }: Pro
           token
         );
 
-        router.push(`/owner/hotels/${hotelId}/rooms/${roomId}`);
+        router.push(`${basePath}/${hotelId}/rooms/${roomId}`);
       } else {
         await createRoom(payload, token);
-        router.push(`/owner/hotels/${hotelId}`);
+        router.push(`${basePath}/${hotelId}`);
       }
     } catch (error) {
       setMessage(formatApiMessage(error, isEditMode ? 'Cannot update room.' : 'Cannot create room.'));

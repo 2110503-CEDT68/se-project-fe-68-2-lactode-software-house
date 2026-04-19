@@ -21,7 +21,7 @@ export default function Navbar() {
   const { user, logoutUser } = useApp();
 
   const role = normalizeRoleForPath(user?.role) as NavRole;
-  const homePath = getRoleLandingPath(user?.role);
+  const homePath = '/';
   const fullName = `${user?.firstname ?? ''} ${user?.lastname ?? ''}`.trim();
   const displayName = user?.username || fullName || 'Account';
 

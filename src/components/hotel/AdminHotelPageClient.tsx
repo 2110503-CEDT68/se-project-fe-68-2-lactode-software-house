@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { Plus } from 'lucide-react';
+import Button from '@/src/components/common/Button';
 import HotelCard from '@/src/components/hotel/HotelCard';
 import { useApp } from '@/src/context/AppContext';
 
-export default function HotelPageClient() {
+export default function AdminHotelPageClient() {
   const { hotels } = useApp();
 
   const [page, setPage] = useState(1);
@@ -17,17 +19,28 @@ export default function HotelPageClient() {
   return (
     <main className="mx-auto max-w-7xl space-y-12 px-4 py-10 sm:px-6 lg:px-8">
       <section>
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">Hotel list</p>
-        <h1 className="mt-2 text-4xl font-bold text-slate-900">Browse and book your next hotel</h1>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">Admin hotels</p>
+        <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="text-4xl font-bold text-slate-900">Manage hotel listings</h1>
+          <Button
+            href="/admin/hotels/create"
+            variant="primary-icon"
+            className="btn-md px-6 !rounded-full !border-transparent !bg-[#3248ce] text-white hover:!bg-[#2b3fb4]"
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <Plus size={18} strokeWidth={3} />
+              create hotel
+            </span>
+          </Button>
+        </div>
         <p className="mt-3 max-w-3xl text-slate-500">
-          Find the right hotel for your next trip. Explore available stays, check the details, and book your dates
-          with ease.
+          Create, review, and update hotel listings from the admin panel.
         </p>
       </section>
 
       <section className="grid gap-8 lg:grid-cols-3">
         {currentHotels.map((hotel) => (
-          <HotelCard key={hotel._id} hotel={hotel} />
+          <HotelCard key={hotel._id} hotel={hotel} detailHref={`/admin/hotels/${hotel._id}`} />
         ))}
       </section>
 
@@ -55,3 +68,4 @@ export default function HotelPageClient() {
     </main>
   );
 }
+

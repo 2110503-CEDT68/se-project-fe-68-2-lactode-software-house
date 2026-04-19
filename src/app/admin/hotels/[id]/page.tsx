@@ -8,20 +8,26 @@ import AvailabilitySearch from '@/src/components/common/AvailabilitySearch';
 import HotelInfo from '@/src/components/hotel/HotelInfo';
 import RoomCardList from '@/src/components/room/RoomCardList';
 import Button from '@/src/components/common/Button';
-import { formatApiMessage, getHotelById, getRoomsByHotelId } from '@/src/lib/api';
-import { MOCK_FACILITIES, MOCK_IMAGES } from '@/src/lib/mockHotelDetail';
+import { deleteHotel, formatApiMessage, getHotelById, getRoomsByHotelId } from '@/src/lib/api';
+import { useApp } from '@/src/context/AppContext';
 import { Hotel, Room } from '@/types';
+
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
 export default function ViewHotelProfilePage() {
   const router = useRouter();
   const params = useParams<{ id: string | string[] }>();
   const hotelIdParam = params?.id;
   const hotelId = Array.isArray(hotelIdParam) ? hotelIdParam[0] : hotelIdParam;
+  const { token, user, ready, refreshHotels } = useApp();
 
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let ignore = false;
@@ -66,6 +72,38 @@ export default function ViewHotelProfilePage() {
     };
   }, [hotelId]);
 
+  const handleDelete = async () => {
+    if (!ready) {
+      setActionError('Checking your session, please try again.');
+      return;
+    }
+
+    if (!hotelId) {
+      setActionError('Missing hotel ID.');
+      return;
+    }
+
+    if (!token || !user || user.role !== 'admin') {
+      setActionError('Admin access only. Please sign in first.');
+      return;
+    }
+
+    const shouldDelete = window.confirm('Are you sure you want to delete this hotel?');
+    if (!shouldDelete) return;
+
+    try {
+      setDeleting(true);
+      setActionError(null);
+      await deleteHotel(hotelId, token);
+      await refreshHotels();
+      router.push('/admin/hotels');
+    } catch (err) {
+      setActionError(formatApiMessage(err, 'Cannot delete hotel.'));
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (loading) {
     return (
       <main className="min-h-screen px-16 py-8">
@@ -76,33 +114,59 @@ export default function ViewHotelProfilePage() {
 
   if (!hotel || error) {
     return (
-      <main className="min-h-screen px-16 py-8 space-y-4">
-        <Button variant="disabled" className="btn-md" onClick={() => router.back()}>
-          Back
-        </Button>
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
-          {error ?? 'Hotel not found.'}
+      <main className="min-h-screen px-16 py-8">
+        <div>
+          <Button variant="disabled" className="btn-md" href="/admin/hotels">
+            Back
+          </Button>
+        </div>
+
+        <div className="py-8">
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-700">
+            {error ?? 'Hotel not found.'}
+          </div>
         </div>
       </main>
     );
   }
 
+  const hotelEditHref = hotelId ? `/admin/hotels/${hotelId}/edit` : '/admin/hotels';
+  const images = hotel.pictures?.length ? hotel.pictures : [FALLBACK_IMAGE];
+  const facilities = hotel.facilities?.length
+    ? hotel.facilities
+    : ['Facilities information is not available.'];
+
   return (
     <main className="min-h-screen px-16 py-8">
-      <div>
-        <Button variant="disabled" className="btn-md" onClick={() => router.back()}>
-          Back
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="disabled" className="btn-md" href="/admin/hotels">
+            Back
+          </Button>
+          <Button variant="primary" className="btn-md" href={hotelEditHref}>
+            Edit
+          </Button>
+        </div>
+
+        <Button variant="danger" className="btn-md" onClick={handleDelete} disabled={deleting}>
+          {deleting ? 'Deleting...' : 'Delete'}
         </Button>
       </div>
 
-      <div className="max-w-4xl py-8 space-y-6">
-        <PhotoGrid images={hotel.pictures?.length ? hotel.pictures : MOCK_IMAGES} />
+      {actionError ? (
+        <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
+          {actionError}
+        </div>
+      ) : null}
+
+      <div className="py-8 space-y-6">
+        <PhotoGrid images={images} />
 
         <HotelInfo hotel={hotel} />
 
         <section className="space-y-3">
           <h2 className="text-subtitle">Facilities</h2>
-          <FacilityList facilities={hotel.facilities?.length ? hotel.facilities : MOCK_FACILITIES} />
+          <FacilityList facilities={facilities} />
         </section>
 
         <section className="space-y-3">
@@ -111,8 +175,13 @@ export default function ViewHotelProfilePage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-subtitle">Rooms</h2>
-          <RoomCardList rooms={rooms} />
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-subtitle">Rooms</h2>
+            <Button variant="primary" className="btn-sm" href={`/admin/hotels/${hotelId}/rooms/create`}>
+              Create Room
+            </Button>
+          </div>
+          <RoomCardList rooms={rooms} detailBasePath="/admin/hotels" />
         </section>
       </div>
     </main>

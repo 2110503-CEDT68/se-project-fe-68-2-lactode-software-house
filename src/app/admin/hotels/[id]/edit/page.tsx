@@ -3,54 +3,97 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import HotelForm, { HotelFormData } from '@/src/components/hotel/HotelForm';
+import { formatApiMessage, getHotelById, updateHotel } from '@/src/lib/api';
+import { useApp } from '@/src/context/AppContext';
+import { Hotel } from '@/types';
 
 export default function EditHotelPage() {
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
+  const { token, user, ready, refreshHotels } = useApp();
 
   const [data, setData] = useState<HotelFormData | null>(null);
+  const [snapshot, setSnapshot] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchHotel = async () => {
+      if (!ready) return;
+
+      if (!token || !user || (user.role !== 'admin' && user.role !== 'hotelOwner')) {
+        setMessage('Admin/hotel owner access only. Please sign in first.');
+        setData(null);
+        setLoading(false);
+        return;
+      }
+
       try {
-        // TODO: call get hotel by id API here
-        // const res = await getHotelById(id);
-
-        const res: HotelFormData = {
-          name: 'Sunset Paradise',
-          address: 'Bangkok Center',
-          province: 'Bangkok',
-          postalCode: '10110',
-          description: 'Beautiful hotel in Bangkok',
-          phone: '0123456789',
-          email: 'hotel@mail.com',
-          facilities: ['Free Wi-Fi', 'Swimming Pool'],
-          image: [],
-        };
-
-        setData(res);
+        setMessage(null);
+        const hotel = await getHotelById(id);
+        setSnapshot(hotel);
+        setData({
+          name: hotel.name ?? '',
+          address: hotel.location ?? '',
+          province: hotel.province ?? '',
+          postalCode: hotel.postalcode ?? '',
+          description: hotel.description ?? '',
+          phone: hotel.tel ?? '',
+          email: hotel.email ?? '',
+          facilities: hotel.facilities ?? [],
+          image: hotel.pictures ?? [],
+        });
       } catch (error) {
-        console.error('Fetch hotel error:', error);
+        console.error(error);
+        setData(null);
+        setMessage(formatApiMessage(error, 'Cannot load hotel data.'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchHotel();
-  }, [id]);
+  }, [id, ready, token, user]);
 
   const handleUpdate = async (formData: HotelFormData) => {
+    if (!token) {
+      setMessage('Please sign in first.');
+      return;
+    }
+
+    if (!user || (user.role !== 'admin' && user.role !== 'hotelOwner')) {
+      setMessage('Admin/hotel owner access only. Please sign in first.');
+      return;
+    }
+
     try {
-      console.log('update hotel:', id, formData);
+      setMessage(null);
+      await updateHotel(
+        id,
+        {
+          name: formData.name,
+          description: formData.description,
+          location: formData.address,
+          district: snapshot?.district ?? '',
+          province: formData.province,
+          postalcode: formData.postalCode,
+          region: snapshot?.region ?? '',
+          tel: formData.phone,
+          email: formData.email,
+          facilities: formData.facilities,
+          pictures: formData.image,
+          status: snapshot?.status,
+        },
+        token
+      );
 
-      // TODO: call update hotel API here
-      // await updateHotel(id, formData);
+      await refreshHotels();
 
-      router.push('/admin/hotels');
+      router.push(`/admin/hotels/${id}`);
     } catch (error) {
-      console.error('Update hotel error:', error);
+      console.error(error);
+      setMessage(formatApiMessage(error, 'Cannot update hotel.'));
     }
   };
 
@@ -58,7 +101,7 @@ export default function EditHotelPage() {
     if (window.history.length > 1) {
       router.back();
     } else {
-      router.push('/admin/hotels');
+      router.push(`/admin/hotels/${id}`);
     }
   };
 
@@ -67,11 +110,18 @@ export default function EditHotelPage() {
   }
 
   if (!data) {
-    return <main className="p-10">Hotel not found</main>;
+    return <main className="p-10">{message ?? 'Hotel not found'}</main>;
   }
 
   return (
     <main className="min-h-screen bg-[#F8FAFC]">
+      {message ? (
+        <div className="mx-auto w-full max-w-[1180px] px-6 pt-8">
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
+            {message}
+          </div>
+        </div>
+      ) : null}
       <HotelForm
         mode="edit"
         initialData={data}

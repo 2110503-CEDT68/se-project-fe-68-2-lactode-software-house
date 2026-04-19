@@ -54,6 +54,51 @@ export async function getHotelById(id: string): Promise<Hotel> {
   return normalizeHotel(response.data);
 }
 
+type CreateHotelInput = {
+  name: string;
+  description: string;
+  location: string;
+  address?: string;
+  district?: string;
+  province: string;
+  postalcode: string;
+  region?: string;
+  tel: string;
+  email: string;
+  facilities?: string[];
+  pictures?: string[];
+  status?: string;
+};
+
+export async function createHotel(input: CreateHotelInput, token: string): Promise<Hotel> {
+  const pictures = Array.isArray(input.pictures)
+    ? input.pictures.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+    : [];
+  const facilities = Array.isArray(input.facilities)
+    ? normalizeFacilitiesForApi(input.facilities, 'hotel')
+    : [];
+
+  const payload = {
+    ...input,
+    address: input.address ?? input.location,
+    district: input.district ?? input.province,
+    region: input.region ?? input.province,
+    pictures,
+    facilities,
+  };
+
+  const response = await request<{ success: boolean; data: Hotel }>(
+    '/hotels',
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    },
+    token
+  );
+
+  return normalizeHotel(response.data);
+}
+
 type UpdateHotelInput = Partial<{
   name: string;
   description: string;
@@ -86,4 +131,14 @@ export async function updateHotel(id: string, input: UpdateHotelInput, token: st
     token
   );
   return normalizeHotel(response.data);
+}
+
+export async function deleteHotel(id: string, token: string): Promise<void> {
+  await request<{ success: boolean; data: Record<string, never> }>(
+    `/hotels/${id}`,
+    {
+      method: 'DELETE',
+    },
+    token
+  );
 }

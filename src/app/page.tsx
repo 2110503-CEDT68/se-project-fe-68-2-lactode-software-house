@@ -1,56 +1,75 @@
-'use client'
+'use client';
 
-import Button from '@/src/components/common/Button';
-import { LogIn } from 'lucide-react';
+import Link from 'next/link';
+import { BedDouble, Search, ShieldUser } from 'lucide-react';
 import { useApp } from '@/src/context/AppContext';
+import { normalizeRoleForPath } from '@/src/lib/rolePath';
 
-export default function ExamplePage() {
-  const makeUser = (name: string, role: 'user' | 'hotelOwner' | 'admin') => ({
-    _id: role === 'hotelOwner' ? '69da0c7ff8190a65bcf5db14' : `${role}-${name.toLowerCase()}`,
-    firstname: name,
-    lastname: role === 'admin' ? 'Admin' : role === 'hotelOwner' ? 'Owner' : 'User',
-    username: `${name} ${role === 'admin' ? 'Admin' : role === 'hotelOwner' ? 'Owner' : 'User'}`.trim(),
-    email: `${name.toLowerCase()}@example.com`,
-    tel: '012-345-6789',
-    role,
-  });
-  const { setUser, logoutUser } = useApp(); // 👈 เพิ่มตรงนี้
+type LandingRole = 'guest' | 'user' | 'hotelOwner' | 'admin';
+
+type LandingAction = {
+  href: string;
+  label: string;
+  icon: React.ReactNode | null;
+};
+
+const LANDING_ACTIONS: Record<LandingRole, LandingAction> = {
+  guest: {
+    href: '/hotels',
+    label: 'Browse Hotels',
+    icon: <Search className="h-5 w-5" />,
+  },
+  user: {
+    href: '/hotels',
+    label: 'Browse Hotels',
+    icon: <Search className="h-5 w-5" />,
+  },
+  hotelOwner: {
+    href: '/owner/hotels',
+    label: 'Hotel Management',
+    icon: <BedDouble className="h-5 w-5" />,
+  },
+  admin: {
+    href: '/admin',
+    label: 'Admin Dashboard',
+    icon: <ShieldUser className="h-5 w-5" />,
+  },
+};
+
+const HERO_IMAGE =
+  'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1800&q=80';
+
+export default function HomePage() {
+  const { user } = useApp();
+  const role = normalizeRoleForPath(user?.role) as LandingRole;
+  const action = LANDING_ACTIONS[role] ?? LANDING_ACTIONS.guest;
 
   return (
-    <div className="flex flex-col gap-8 p-10">
+    <main className="relative min-h-[calc(100vh-120px)] overflow-hidden">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url('${HERO_IMAGE}')` }}
+      />
+      <div className="absolute inset-0 bg-slate-900/55" />
 
-      {/* 🔥 TEST ROLE */}
-      <div className="flex gap-3 flex-wrap">
-        <button onClick={() => setUser(makeUser('Jame', 'user'))} className="border px-3 py-1 rounded-full">
-          User
-        </button>
+      <section className="relative z-10 flex min-h-[calc(100vh-120px)] items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
+        <div className="text-center text-white">
+          <h1 className="text-4xl font-bold sm:text-5xl">Find Your Perfect Stay</h1>
+          <p className="mt-4 text-sm font-semibold uppercase tracking-[0.35em] text-slate-100 sm:text-2xl sm:tracking-[0.3em]">
+            Discover luxury hotels around the world
+          </p>
 
-        <button onClick={() => setUser(makeUser('Owner', 'hotelOwner'))} className="border px-3 py-1 rounded-full">
-          Owner
-        </button>
-
-        <button onClick={() => setUser(makeUser('Admin', 'admin'))} className="border px-3 py-1 rounded-full">
-          Admin
-        </button>
-
-        <button onClick={logoutUser} className="border px-3 py-1 rounded-full">
-          Logout
-        </button>
-      </div>
-
-      {/* 🔽 ของเดิมคุณ */}
-      <Button>Button</Button>
-      <Button className='btn-sm'>Button-sm</Button>
-      <Button className='btn-md'>Button-md</Button>
-      <Button className='btn-lg'>Button-lg</Button>
-
-      <Button variant="primary-icon" icon={<LogIn size={40} strokeWidth={2} />}>
-        Button
-      </Button>
-
-      <Button variant="danger">Delete</Button>
-
-      <Button disabled>Back</Button>
-    </div>
+          <div className="mt-10 flex justify-center">
+            <Link
+              href={action.href}
+              className="inline-flex items-center gap-2.5 rounded-full bg-[#3248ce] px-8 py-4 text-lg font-semibold text-white transition hover:bg-[#2b3fb4]"
+            >
+              {action.icon}
+              <span>{action.label}</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }

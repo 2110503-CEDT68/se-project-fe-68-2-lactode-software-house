@@ -1,4 +1,4 @@
-import { LoginInput, RegisterInput, Role, User } from '@/types';
+import { ApiListResponse, LoginInput, RegisterInput, Role, User } from '@/types';
 import { request } from './client';
 
 function normalizeRole(rawRole: unknown): Role {
@@ -111,6 +111,14 @@ export async function loginUser(input: LoginInput): Promise<{ token: string }> {
 export async function getMe(token: string): Promise<User> {
   const response = await request<{ success: boolean; data: User }>('/auth/me', { method: 'GET' }, token);
   return normalizeUser(response.data);
+}
+
+export async function getUsers(token: string): Promise<ApiListResponse<User>> {
+  const response = await request<ApiListResponse<User>>('/auth', { method: 'GET' }, token);
+  return {
+    ...response,
+    data: response.data.map(normalizeUser),
+  };
 }
 
 export async function logoutUser(token: string): Promise<void> {

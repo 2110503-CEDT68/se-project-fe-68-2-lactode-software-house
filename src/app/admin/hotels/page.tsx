@@ -1,14 +1,14 @@
-'use client';
+import { Suspense } from 'react'
+import AdminHotelPageClient from '../../../components/hotel/AdminHotelPageClient'
 
-export default function AdminHotelsPage() {
+function HotelPageFallback() {
+  return <div>Loading...</div>
+}
+
+export default function HotelPage() {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="rounded-[28px] border border-slate-200 bg-white p-8 shadow-soft">
-        <h1 className="text-3xl font-bold text-slate-900">Admin Hotels</h1>
-        <p className="mt-3 text-slate-500">
-          Admin hotel listing is not implemented yet.
-        </p>
-      </div>
-    </main>
-  );
+    <Suspense fallback={<HotelPageFallback />}>
+      <AdminHotelPageClient />
+    </Suspense>
+  )
 }
