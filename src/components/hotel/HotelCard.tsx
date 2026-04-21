@@ -1,5 +1,6 @@
 import { Hotel } from '@/types';
 import Button from '@/src/components/common/Button';
+import ProgressiveImage from '@/src/components/common/ProgressiveImage';
 import { LogIn } from 'lucide-react';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
@@ -15,7 +16,7 @@ export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft">
       <div className="h-64 w-full bg-slate-100">
-        <img src={imageSrc} alt={hotel.name} className="h-full w-full object-cover" />
+        <ProgressiveImage src={imageSrc} alt={hotel.name} />
       </div>
       <div className="flex flex-1 flex-col p-6">
         <div className="mb-2">
