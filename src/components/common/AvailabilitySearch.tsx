@@ -24,57 +24,79 @@ export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState("");
+  const [errorText, setErrorText] = useState("");
 
   const handleSearch = () => {
     const parsedGuests = guests.trim() === '' ? 0 : Number.parseInt(guests, 10);
-    onSearch?.({ checkIn, checkOut, guests: Number.isNaN(parsedGuests) ? 0 : parsedGuests });
+    const safeGuests = Number.isNaN(parsedGuests) ? 0 : parsedGuests;
+
+    if (!checkIn || !checkOut || safeGuests <= 0) {
+      setErrorText("Please fill check-in date, check-out date, and people before searching.");
+      return;
+    }
+
+    setErrorText("");
+    onSearch?.({ checkIn, checkOut, guests: safeGuests });
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
 
-      {/* Search bar */}
-      <div className="flex flex-1 items-center gap-3 border border-gray-300 rounded-full px-5 py-2.5 bg-white">
+        {/* Search bar */}
+        <div className="flex flex-1 items-center gap-3 border border-gray-300 rounded-full px-5 py-2.5 bg-white">
 
-        {/* Check-in / Check-out */}
-        <div className="flex items-center gap-2 flex-1">
-          <input
-            type="date"
-            value={checkIn}
-            onChange={(e) => setCheckIn(e.target.value)}
-            className="text-sm text-gray-500 bg-transparent outline-none cursor-pointer"
-          />
-          <span className="text-gray-400 text-sm">-</span>
-          <input
-            type="date"
-            value={checkOut}
-            onChange={(e) => setCheckOut(e.target.value)}
-            className="text-sm text-gray-500 bg-transparent outline-none cursor-pointer"
-          />
+          {/* Check-in / Check-out */}
+          <div className="flex items-center gap-2 flex-1">
+            <input
+              type="date"
+              value={checkIn}
+              onChange={(e) => {
+                setCheckIn(e.target.value);
+                setErrorText("");
+              }}
+              className="text-sm text-gray-500 bg-transparent outline-none cursor-pointer"
+            />
+            <span className="text-gray-400 text-sm">-</span>
+            <input
+              type="date"
+              value={checkOut}
+              onChange={(e) => {
+                setCheckOut(e.target.value);
+                setErrorText("");
+              }}
+              className="text-sm text-gray-500 bg-transparent outline-none cursor-pointer"
+            />
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-5 bg-gray-300" />
+
+          {/* Guest count */}
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4 text-gray-400 flex-shrink-0"/>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              value={guests}
+              onChange={(e) => {
+                setGuests(e.target.value);
+                setErrorText("");
+              }}
+              className="w-16 text-sm text-gray-500 bg-transparent outline-none"
+              placeholder="0"
+            />
+            <span className="text-sm text-gray-400">people</span>
+          </div>
+
         </div>
 
-        {/* Divider */}
-        <div className="w-px h-5 bg-gray-300" />
-
-        {/* Guest count */}
-        <div className="flex items-center gap-2">
-          <User className="w-4 h-4 text-gray-400 flex-shrink-0"/>
-          <input
-            type="number"
-            min={0}
-            step={1}
-            value={guests}
-            onChange={(e) => setGuests(e.target.value)}
-            className="w-16 text-sm text-gray-500 bg-transparent outline-none"
-            placeholder="0"
-          />
-          <span className="text-sm text-gray-400">people</span>
-        </div>
-
+        {/* Search button */}
+        <Button className="btn-md" onClick={handleSearch}>Search</Button>
       </div>
 
-      {/* Search button */}
-      <Button className="btn-md" onClick={handleSearch}>Search</Button>
+      {errorText ? <p className="text-sm text-rose-600">{errorText}</p> : null}
     </div>
   );
 }
