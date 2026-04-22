@@ -27,13 +27,14 @@ export default function CreateHotelPage() {
 
     const name = data.name.trim();
     const address = data.address.trim();
+    const district = data.district.trim();
     const province = data.province.trim();
     const postalCode = data.postalCode.trim();
     const phone = data.phone.trim();
     const email = data.email.trim();
     const ownerEmail = data.ownerEmail.trim();
 
-    if (!name || !address || !province || !postalCode || !phone || !email || !ownerEmail) {
+    if (!name || !address || !district || !province || !postalCode || !phone || !email || !ownerEmail) {
       setMessage('Please complete all required fields before creating the hotel.');
       return;
     }
@@ -48,7 +49,7 @@ export default function CreateHotelPage() {
           description: data.description.trim(),
           location: address,
           address,
-          district: address.split(',')[0]?.trim() || province,
+          district,
           province,
           postalcode: postalCode,
           region: province,

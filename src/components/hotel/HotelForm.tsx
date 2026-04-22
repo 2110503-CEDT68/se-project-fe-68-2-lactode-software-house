@@ -4,12 +4,14 @@ import { useEffect, useMemo, useState } from 'react';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import FacilitySelector from '../common/FacilitySelector';
+import PhotoGrid from '../common/PhotoGrid';
 import { HOTEL_FACILITY_OPTIONS } from '@/src/constants/facilities';
 
 export interface HotelFormData {
   name: string;
   address: string;
   province: string;
+  district: string;
   postalCode: string;
   description: string;
   phone: string;
@@ -32,27 +34,28 @@ export default function HotelForm({
   initialData,
   onSubmit,
   onCancel,
-  cancelHref = '/admin/hotels',
 }: Props) {
-  const normalizedInitialData: HotelFormData = useMemo(
-    () => ({
+  const normalizedInitialData: HotelFormData = useMemo(() => {
+    const initialImages = Array.isArray(initialData?.image)
+      ? initialData.image
+      : initialData?.image
+      ? [initialData.image as unknown as string]
+      : [];
+
+    return {
       name: initialData?.name ?? '',
       address: initialData?.address ?? '',
       province: initialData?.province ?? '',
+      district: initialData?.district ?? '',
       postalCode: initialData?.postalCode ?? '',
       description: initialData?.description ?? '',
       phone: initialData?.phone ?? '',
       email: initialData?.email ?? '',
       ownerEmail: initialData?.ownerEmail ?? '',
       facilities: initialData?.facilities ?? [],
-      image: initialData?.image
-        ? Array.isArray(initialData.image)
-          ? initialData.image
-          : [initialData.image]
-        : [],
-    }),
-    [initialData]
-  );
+      image: initialImages.length > 0 ? initialImages : [''],
+    };
+  }, [initialData]);
 
   const [form, setForm] = useState<HotelFormData>(normalizedInitialData);
 
@@ -70,42 +73,52 @@ export default function HotelForm({
     }));
   };
 
-  const handleImageChange = async (files: File[]) => {
-    const readers = files.map(
-      (file) =>
-        new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
+  const mainPicture = form.image[0] ?? '';
+  const anotherPictures = form.image.slice(1);
 
-          reader.onload = () => {
-            if (typeof reader.result === 'string') {
-              resolve(reader.result);
-            } else {
-              reject(new Error('Failed to read image'));
-            }
-          };
+  const previewImages = form.image.filter((img) => img.trim() !== '');
 
-          reader.onerror = () => reject(new Error('Failed to read image'));
-          reader.readAsDataURL(file);
-        })
-    );
+  const setMainPicture = (value: string) => {
+    setForm((prev) => {
+      const nextImages = [...prev.image];
+      nextImages[0] = value;
 
-    try {
-      const images = await Promise.all(readers);
-
-      setForm((prev) => ({
+      return {
         ...prev,
-        image: [...prev.image, ...images],
-      }));
-    } catch (error) {
-      console.error('Image upload error:', error);
-    }
+        image: nextImages,
+      };
+    });
   };
 
-  const handleRemoveImage = (index: number) => {
+  const setAnotherPicture = (index: number, value: string) => {
+    setForm((prev) => {
+      const nextImages = [...prev.image];
+      nextImages[index + 1] = value;
+
+      return {
+        ...prev,
+        image: nextImages,
+      };
+    });
+  };
+
+  const addAnotherPicture = () => {
     setForm((prev) => ({
       ...prev,
-      image: prev.image.filter((_, i) => i !== index),
+      image: [...prev.image, ''],
     }));
+  };
+
+  const removeAnotherPicture = (index: number) => {
+    setForm((prev) => {
+      const nextImages = [...prev.image];
+      nextImages.splice(index + 1, 1);
+
+      return {
+        ...prev,
+        image: nextImages.length > 0 ? nextImages : [''],
+      };
+    });
   };
 
   const isDirty = useMemo(() => {
@@ -143,88 +156,115 @@ export default function HotelForm({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSubmit(form);
+
+    onSubmit({
+      ...form,
+      image: form.image.filter((img) => img.trim() !== ''),
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-[1180px] px-6 py-8">
-      <div className="mb-8 flex items-center justify-between">
-        <Button variant='disabled' onClick={handleCancel}>
-          cancel
-        </Button>
+    <form
+      onSubmit={handleSubmit}
+      className="mx-auto w-full max-w-[1180px] px-8 py-8"
+    >
+      <div className="mb-6 flex items-start justify-between">
+        <div className="mt-[6px]">
+          <Button variant="disabled" onClick={handleCancel}>
+            cancel
+          </Button>
+        </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          className="rounded-full px-8 py-3"
-        >
-          {mode === 'edit' ? 'edit' : 'create'}
-        </Button>
+        <div className="flex flex-col items-end gap-2">
+          <Button
+            type="submit"
+            variant="primary"
+            className="rounded-full px-8 py-3"
+          >
+            {mode === 'edit' ? 'edit' : 'create'}
+          </Button>
+
+          {mode === 'create' ? (
+            <div className="w-[260px]">
+              <TextInput
+                label="Owner Email"
+                type="email"
+                placeholder="owner@gmail.com"
+                value={form.ownerEmail}
+                onChange={(value) => setField('ownerEmail', value)}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="space-y-8">
         <section>
-          <label
-            htmlFor="hotel-image"
-            className="flex min-h-[460px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-[32px] border border-[#CFCFCF] bg-white"
-          >
-            {form.image.length > 0 ? (
-              <div className="grid w-full grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
-                {form.image.map((img, index) => (
-                  <div key={index} className="relative">
-                    <img
-                      src={img}
-                      alt={`Hotel preview ${index + 1}`}
-                      className="h-40 w-full rounded-xl object-cover"
-                    />
+          <PhotoGrid images={previewImages} />
+
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr]">
+            <TextInput
+              label="Main picture"
+              placeholder="picture url"
+              value={mainPicture}
+              onChange={setMainPicture}
+            />
+
+            <div className="space-y-3">
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <TextInput
+                    label="Another picture"
+                    placeholder="picture url"
+                    value={anotherPictures[0] ?? ''}
+                    onChange={(value) => setAnotherPicture(0, value)}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addAnotherPicture}
+                  className="mb-[2px] flex h-8 w-8 items-center justify-center rounded-full bg-[#2B3FCB] text-white"
+                >
+                  +
+                </button>
+              </div>
+
+              {anotherPictures.slice(1).map((img, index) => {
+                const actualIndex = index + 1;
+
+                return (
+                  <div key={actualIndex} className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <TextInput
+                        placeholder="picture url"
+                        value={img}
+                        onChange={(value) =>
+                          setAnotherPicture(actualIndex, value)
+                        }
+                      />
+                    </div>
+
                     <button
                       type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleRemoveImage(index);
-                      }}
-                      className="absolute right-2 top-2 rounded-full bg-black/60 px-2 py-1 text-xs text-white"
+                      onClick={() => removeAnotherPicture(actualIndex)}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-[#FF9FA8] bg-white text-[#FF6B77]"
                     >
-                      ✕
+                      ×
                     </button>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center leading-none">
-                <p className="text-[28px] font-bold text-black">upload</p>
-                <p className="text-[28px] font-bold text-black">picture</p>
-              </div>
-            )}
-          </label>
-
-          <input
-            id="hotel-image"
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={(e) => {
-              const files = Array.from(e.target.files || []);
-              if (files.length > 0) handleImageChange(files);
-              e.currentTarget.value = '';
-            }}
-          />
+                );
+              })}
+            </div>
+          </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-x-16 gap-y-6 md:grid-cols-3">
+        <section className="grid grid-cols-1 gap-x-7 gap-y-5 md:grid-cols-3">
           <TextInput
             label="Hotel Name"
             placeholder="Resort Villa brabra"
             value={form.name}
             onChange={(value) => setField('name', value)}
-          />
-
-          <TextInput
-            label="Phone"
-            placeholder="+66 76 123 456"
-            value={form.phone}
-            onChange={(value) => setField('phone', value)}
           />
 
           <TextInput
@@ -236,17 +276,33 @@ export default function HotelForm({
           />
 
           <TextInput
-            label="Address"
-            placeholder="Huai Kwang, Central, 342 Rama IV Road"
-            value={form.address}
-            onChange={(value) => setField('address', value)}
+            label="Phone"
+            placeholder="+66 76 123 456"
+            value={form.phone}
+            onChange={(value) => setField('phone', value)}
           />
+
+          <div className="md:col-span-3">
+            <TextInput
+              label="Address"
+              placeholder="Huai Kwang, Central, 342 Rama IV Road"
+              value={form.address}
+              onChange={(value) => setField('address', value)}
+            />
+          </div>
 
           <TextInput
             label="Province"
             placeholder="Bangkok"
             value={form.province}
             onChange={(value) => setField('province', value)}
+          />
+
+          <TextInput
+            label="District"
+            placeholder="Huai Kwang"
+            value={form.district}
+            onChange={(value) => setField('district', value)}
           />
 
           <TextInput
@@ -257,30 +313,22 @@ export default function HotelForm({
           />
 
           <div className="md:col-span-3">
-            <label className="mb-2 block text-sub detail text-[var(--color-text-primary)]">
+            <label className="mb-2 block text-[14px] font-semibold text-[var(--color-text-primary)]">
               Description
             </label>
             <textarea
               value={form.description}
               onChange={(e) => setField('description', e.target.value)}
               placeholder="A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service. Perfect for both relaxation and family vacations."
-              className="min-h-[180px] w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-gray-400 focus:border-[var(--color-primary)]"
+              className="min-h-[130px] w-full rounded-[16px] border border-[#D6D6D6] bg-white px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-gray-400 focus:border-[var(--color-primary)]"
             />
           </div>
-
-          {mode === 'create' ? (
-            <TextInput
-              label="Owner Email"
-              type="email"
-              placeholder="owner@example.com"
-              value={form.ownerEmail}
-              onChange={(value) => setField('ownerEmail', value)}
-            />
-          ) : null}
         </section>
 
         <section>
-          <h2 className="mb-5 text-subtitle">Facilities</h2>
+          <h2 className="mb-4 text-[32px] font-bold leading-none text-black">
+            Facilities
+          </h2>
 
           <FacilitySelector
             scope="hotel"

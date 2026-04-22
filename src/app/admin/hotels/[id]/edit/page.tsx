@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import HotelForm, { HotelFormData } from '@/src/components/hotel/HotelForm';
+import HotelForm, {
+  HotelFormData,
+  HotelFormSubmitData,
+} from '@/src/components/hotel/HotelForm';
 import { formatApiMessage, getHotelById, updateHotel } from '@/src/lib/api';
 import { useApp } from '@/src/context/AppContext';
 import { Hotel } from '@/types';
@@ -35,7 +38,8 @@ export default function EditHotelPage() {
         setSnapshot(hotel);
         setData({
           name: hotel.name ?? '',
-          address: hotel.location ?? '',
+          address: hotel.address ?? hotel.location ?? '',
+          district: hotel.district ?? '',
           province: hotel.province ?? '',
           postalCode: hotel.postalcode ?? '',
           description: hotel.description ?? '',
@@ -57,7 +61,7 @@ export default function EditHotelPage() {
     fetchHotel();
   }, [id, ready, token, user]);
 
-  const handleUpdate = async (formData: HotelFormData) => {
+  const handleUpdate = async (formData: HotelFormSubmitData) => {
     if (!token) {
       setMessage('Please sign in first.');
       return;
@@ -75,15 +79,16 @@ export default function EditHotelPage() {
         {
           name: formData.name,
           description: formData.description,
-          location: formData.address,
-          district: snapshot?.district ?? '',
+          location: formData.location,
+          address: formData.address,
+          district: formData.district,
           province: formData.province,
-          postalcode: formData.postalCode,
+          postalcode: formData.postalcode,
           region: snapshot?.region ?? '',
-          tel: formData.phone,
+          tel: formData.tel,
           email: formData.email,
           facilities: formData.facilities,
-          pictures: formData.image,
+          pictures: formData.pictures,
           status: snapshot?.status,
         },
         token

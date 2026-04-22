@@ -103,7 +103,7 @@ export default function ViewHotelProfilePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen px-16 py-8">
+      <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-500">Loading hotel...</div>
       </main>
     );
@@ -111,7 +111,7 @@ export default function ViewHotelProfilePage() {
 
   if (!hotel || error) {
     return (
-      <main className="min-h-screen px-16 py-8">
+      <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
         <div>
           <Button variant="disabled" className="btn-md" href="/admin/hotels">
             Back
@@ -135,7 +135,7 @@ export default function ViewHotelProfilePage() {
     : ['Facilities information is not available.'];
 
   return (
-    <main className="min-h-screen px-16 py-8">
+    <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="disabled" className="btn-md" href="/admin/hotels">
