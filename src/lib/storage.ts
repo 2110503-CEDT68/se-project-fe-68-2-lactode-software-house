@@ -12,6 +12,7 @@ export const adminSeed: User = {
   email: 'admin@tumdaid.com',
   tel: '099-999-9999',
   role: 'admin',
+  favoriteHotels: [],
 }
 
 export function getUsers(): User[] {

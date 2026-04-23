@@ -1,6 +1,7 @@
 import { Hotel } from '@/types';
 import Button from '@/src/components/common/Button';
 import ProgressiveImage from '@/src/components/common/ProgressiveImage';
+import FavoriteButton from '@/src/components/hotel/FavoriteButton';
 import { LogIn } from 'lucide-react';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
@@ -19,13 +20,22 @@ export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
         <ProgressiveImage src={imageSrc} alt={hotel.name} />
       </div>
       <div className="flex flex-1 flex-col p-6">
-        <div className="mb-2">
+        
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">{hotel.province}</p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">{hotel.name}</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            {hotel.district}, {hotel.region}
-          </p>
-        </div>
+          <div className="mb-2 overflow-hidden">
+            <div className="grid grid-cols-[minmax(0,1fr)_64px]">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">{hotel.name}</h2>
+                <p className="text-sm leading-7 text-slate-600 break-words">
+                  {hotel.district}, {hotel.region}
+                </p>
+              </div>
+              <div className="flex items-top justify-center">
+                <FavoriteButton hotel={hotel} />
+              </div>
+            </div>
+          </div>
+        
 
         <div className="mt-auto w-full space-y-4">
           <div className="mx-auto w-full rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
@@ -39,14 +49,16 @@ export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
               <p className="text-sm text-slate-500">Booking rule</p>
               <p className="text-xl font-bold text-slate-900">Up to 3 Nights</p>
             </div>
-            <Button
-              href={detailHref ?? `/hotels/${hotel._id}`}
-              variant="primary-icon"
-              icon={<LogIn size={20} strokeWidth={2}/>}
-              className="btn-md hotel-card-detail-btn"
-            >
-              Detail
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                href={detailHref ?? `/hotels/${hotel._id}`}
+                variant="primary-icon"
+                icon={<LogIn size={20} strokeWidth={2} />}
+                className="btn-md hotel-card-detail-btn"
+              >
+                Detail
+              </Button>
+            </div>
           </div>
         </div>
       </div>

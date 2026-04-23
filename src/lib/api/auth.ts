@@ -20,11 +20,29 @@ function normalizeUserRole(user: User): User {
   };
 }
 
+function normalizeFavoriteHotels(rawValue: unknown): string[] {
+  if (!Array.isArray(rawValue)) return [];
+
+  const ids = rawValue
+    .map((item) => {
+      if (typeof item === 'string') return item.trim();
+      if (!item || typeof item !== 'object') return '';
+      const source = item as Record<string, unknown>;
+      const candidate = source._id ?? source.id ?? source.hotelID ?? source.hotelId;
+      return typeof candidate === 'string' ? candidate.trim() : '';
+    })
+    .filter((id): id is string => id.length > 0);
+
+  return [...new Set(ids)];
+}
+
 function normalizeUserProfile(user: User): User {
-  const rawFirstname = (user as unknown as Record<string, unknown>).firstname;
-  const rawLastname = (user as unknown as Record<string, unknown>).lastname;
-  const rawUsername = (user as unknown as Record<string, unknown>).username;
-  const rawName = (user as unknown as Record<string, unknown>).name;
+  const source = user as unknown as Record<string, unknown>;
+  const rawFirstname = source.firstname;
+  const rawLastname = source.lastname;
+  const rawUsername = source.username;
+  const rawName = source.name;
+  const rawFavoriteHotels = source.favoriteHotels ?? source.favoriteHotelIDs ?? source.favorites;
 
   const fromName =
     typeof rawName === 'string' && rawName.trim().length > 0
@@ -46,12 +64,14 @@ function normalizeUserProfile(user: User): User {
     ? rawLastname.trim()
     : fallbackLastname;
   const username = fromUsername || fromName || `${firstname} ${lastname}`.trim();
+  const favoriteHotels = normalizeFavoriteHotels(rawFavoriteHotels);
 
   return {
     ...user,
     firstname,
     lastname,
     username,
+    favoriteHotels,
   };
 }
 
@@ -157,7 +177,7 @@ export async function updatePassword(
   token: string
 ): Promise<{ success: boolean; msg: string }> {
   return request('/auth/resetPassword', {
-    method: 'POST',
+    method: 'PUT',
     body: JSON.stringify(payload),
   }, token);
 }

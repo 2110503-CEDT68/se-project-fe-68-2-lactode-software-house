@@ -7,3 +7,5 @@ export { createHotel, deleteHotel, getHotels, getHotelsByOwnerId, getHotelById, 
 export { getBookings, getBookingById, createBooking, updateBooking, deleteBooking } from './api/bookings';
 
 export { createRoom, updateRoom, getRoomById, getRoomsByHotelId, deleteRoom } from './api/rooms';
+
+export { addFavorite, removeFavorite } from './api/favorites';
