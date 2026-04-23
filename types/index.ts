@@ -8,6 +8,7 @@ export type User = {
   email: string;
   tel: string;
   role: Role;
+  favoriteHotels: string[];
   picture?: string;
   createdAt?: string;
   updatedAt?: string;
