@@ -160,7 +160,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-8 py-10">
+    <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
       <section className="mb-8">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">
           Admin Dashboard

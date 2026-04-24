@@ -114,7 +114,7 @@ export default function RoomDetailPage() {
 
   if (!ready || loading || fetching) {
     return (
-      <main className="min-h-screen px-16 py-8">
+      <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
         <div className="flex items-center justify-center gap-3 py-20 text-sm text-slate-400">
           <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-200 border-t-blue-600" />
           Loading room...
@@ -125,7 +125,7 @@ export default function RoomDetailPage() {
 
   if (loadError || !hotel || !room) {
     return (
-      <main className="min-h-screen px-16 py-8">
+      <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
         <div>
           <Button variant="disabled" className="btn-md" onClick={() => router.push('/owner/hotels')}>
             Back
@@ -170,7 +170,7 @@ export default function RoomDetailPage() {
   const canDelete = canManage && Boolean(token);
 
   return (
-    <main className="min-h-screen px-16 py-8">
+    <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="disabled" className="btn-md" onClick={() => router.push(backToHotel)}>

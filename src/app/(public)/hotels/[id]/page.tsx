@@ -49,7 +49,7 @@ export default async function HotelDetailPage({
     );
   } catch {
     return (
-      <main className="min-h-screen px-16 py-8">
+      <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
         <div>
           <Button variant="disabled" className="btn-md" href="/hotels">
             Back
