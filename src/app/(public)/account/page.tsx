@@ -86,21 +86,23 @@ export default function AccountPage() {
 
     if (user.role === 'admin') {
       return [
-        { label: 'Admin Dashboard', href: '/admin' },
-        { label: 'view booking', href: '/admin/bookings' },
+        { label: 'Dashboard', href: '/admin/dashboard' },
+        { label: 'Hotels', href: '/admin/hotels' },
+        { label: 'Bookings', href: '/admin/bookings' },
       ];
     }
 
     if (user.role === 'hotelOwner') {
       return [
-        { label: 'Hotel Profile', href: '/owner/hotels' },
-        { label: 'Booking', href: '/owner/bookings' },
+        { label: 'Dashboard', href: '/owner/dashboard' },
+        { label: 'Hotels', href: '/owner/hotels' },
+        { label: 'Bookings', href: '/owner/bookings' },
       ];
     }
 
     return [
-      { label: 'Book a Room', href: '/hotels' },
-      { label: 'My booking', href: '/user/bookings' },
+      { label: 'Hotels', href: '/hotels' },
+      { label: 'Bookings', href: '/user/bookings' },
     ];
   }, [user]);
 

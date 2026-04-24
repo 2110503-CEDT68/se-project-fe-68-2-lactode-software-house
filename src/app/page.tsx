@@ -25,7 +25,7 @@ const LANDING_ACTIONS: Record<LandingRole, LandingAction> = {
     icon: <Search className="h-5 w-5" />,
   },
   hotelOwner: {
-    href: '/owner/hotels',
+    href: '/owner/dashboard',
     label: 'Hotel Management',
     icon: <BedDouble className="h-5 w-5" />,
   },

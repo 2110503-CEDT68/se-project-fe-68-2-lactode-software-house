@@ -17,7 +17,7 @@ export function getRoleLandingPath(rawRole: unknown) {
   const role = normalizeRoleForPath(rawRole);
 
   if (role === 'admin') return '/admin/dashboard';
-  if (role === 'hotelOwner') return '/owner/hotels';
+  if (role === 'hotelOwner') return '/owner/dashboard';
   if (role === 'user') return '/hotels';
   return '/hotels';
 }

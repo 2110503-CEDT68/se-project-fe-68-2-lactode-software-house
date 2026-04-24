@@ -1,7 +1,13 @@
+'use client'
+
+import { useApp } from "@/src/context/AppContext";
 import { Hotel } from "@/types";
-import { Mail, Phone } from "lucide-react";
+import { Heart, Mail, Phone } from "lucide-react";
+import FavoriteButton from "./FavoriteButton";
 
 export default function HotelInfo({ hotel }: { hotel: Hotel }) {
+  const { user } = useApp();
+  const isAdminOrOwner = user?.role === 'admin' || user?.role === 'hotelOwner';
   const location = [hotel.location, hotel.district, hotel.province]
     .filter((value) => Boolean(value?.trim()))
     .join(', ');
@@ -9,8 +15,20 @@ export default function HotelInfo({ hotel }: { hotel: Hotel }) {
   return (
     <div className="space-y-3">
 
-      {/* Name */}
-      <h1 className="text-title">{hotel.name?.trim() || 'Hotel name unavailable'}</h1>
+      {/* Name and fav icon*/}
+      <div className="flex justify-between">
+        <h1 className="text-title">{hotel.name?.trim() || 'Hotel name unavailable'}</h1>
+        {isAdminOrOwner ? (
+          <div className='flex items-center gap-2'>
+            <Heart size={32} className="fill-[var(--color-error)] text-[var(--color-error)]" />
+            <p className="text-subdetail">{hotel.favoriteBy}</p>
+          </div>
+        ) : (
+          <div>
+            <FavoriteButton hotel={hotel} />
+          </div>
+        )}
+      </div>
 
       {/* Address */}
       <p className="text-detail">
