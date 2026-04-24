@@ -32,26 +32,25 @@ export default function FavoriteRankingCard({
       onClick={onClick}
       className="group relative mb-8 flex min-h-[142px] cursor-pointer overflow-visible rounded-[30px] bg-white shadow-[0_14px_34px_rgba(15,23,42,0.14)] ring-1 ring-slate-100 transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_42px_rgba(15,23,42,0.18)]"
     >
-      {rank && rank <= 3 ? (
+      {rank  ? (
         <div
-          className="absolute -left-5 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full text-sm font-extrabold text-white shadow-[0_8px_18px_rgba(15,23,42,0.22)] ring-4 ring-white"
+          className="absolute -left-5 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full text-sm font-extrabold text-[#4758eb] shadow-[0_8px_18px_rgba(15,23,42,0.22)] ring-4 ring-white"
           style={{
             backgroundColor:
-              rank === 1 ? '#FFD700' : rank === 2 ? '#C0C0C0' : '#CD7F32',
+              //rank === 1 ? '#FFD700' : rank === 2 ? '#C0C0C0' : '#CD7F32',
+              '#FFFFFF'
           }}
         >
           #{rank}
         </div>
       ) : null}
 
-      <div className="relative h-[142px] w-[520px] shrink-0 overflow-hidden rounded-l-[30px] bg-white">
+      <div className="relative z-0 h-[142px] w-[500px] shrink-0 overflow-hidden rounded-l-[30px] bg-white">
         <ProgressiveImage src={imageSrc} alt={hotel.name} />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/100 via-70% to-white" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/40 via-60% to-white/95 backdrop-blur-[2px]" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-40 bg-gradient-to-r from-white/80 to-white" />
+        <div className="pointer-events-none absolute inset-y-0 left-[-20%] right-0 z-[1] w-[120%] bg-gradient-to-r from-transparent via-white/70 via-60% to-white" />
       </div>
 
-      <div className="relative z-[1] -ml-[170px] flex min-w-0 flex-1 flex-col justify-center px-10 pr-48">
+      <div className="relative z-[2] -ml-[170px] flex min-w-0 flex-1 flex-col justify-center px-10 pr-48">
         <h3 className="truncate text-detail font-bold leading-tight">
           {hotel.name}
         </h3>
