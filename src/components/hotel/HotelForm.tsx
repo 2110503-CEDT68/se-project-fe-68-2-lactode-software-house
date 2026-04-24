@@ -168,37 +168,35 @@ export default function HotelForm({
       onSubmit={handleSubmit}
       className="mx-auto w-full max-w-[1180px] px-8 py-8"
     >
-      <div className="mb-6 flex items-start justify-between">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div className="mt-[6px]">
           <Button variant="disabled" onClick={handleCancel}>
             cancel
           </Button>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
-          <Button
-            type="submit"
-            variant="primary"
-            className="rounded-full px-8 py-3"
-          >
-            {mode === 'edit' ? 'edit' : 'create'}
-          </Button>
-
-          {mode === 'create' ? (
-            <div className="w-[260px]">
-              <TextInput
-                label="Owner Email"
-                type="email"
-                placeholder="owner@gmail.com"
-                value={form.ownerEmail}
-                onChange={(value) => setField('ownerEmail', value)}
-              />
-            </div>
-          ) : null}
-        </div>
+        <Button
+          type="submit"
+          variant="primary"
+          className="rounded-full px-8 py-3"
+        >
+          {mode === 'edit' ? 'edit' : 'create'}
+        </Button>
       </div>
 
       <div className="space-y-8">
+        {mode === 'create' ? (
+          <section>
+            <TextInput
+              label="Owner Email"
+              type="email"
+              placeholder="owner@gmail.com"
+              value={form.ownerEmail}
+              onChange={(value) => setField('ownerEmail', value)}
+            />
+          </section>
+        ) : null}
+
         <section>
           <PhotoGrid images={previewImages} />
 
@@ -313,15 +311,17 @@ export default function HotelForm({
           />
 
           <div className="md:col-span-3">
-            <label className="mb-2 block text-[14px] font-semibold text-[var(--color-text-primary)]">
+            <label className="text-subdetail font-medium text-[var(--color-text-primary)]">
               Description
             </label>
-            <textarea
-              value={form.description}
-              onChange={(e) => setField('description', e.target.value)}
-              placeholder="A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service. Perfect for both relaxation and family vacations."
-              className="min-h-[130px] w-full rounded-[16px] border border-[#D6D6D6] bg-white px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none placeholder:text-gray-400 focus:border-[var(--color-primary)]"
-            />
+            <div className="mt-2">
+              <textarea
+                value={form.description}
+                onChange={(e) => setField('description', e.target.value)}
+                placeholder="A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service. Perfect for both relaxation and family vacations."
+                className="min-h-[140px] w-full rounded-[16px] border border-[#D6D6D6] bg-white px-4 py-3 text-[15px] leading-7 text-[var(--color-text-primary)] outline-none placeholder:text-gray-400 focus:border-[var(--color-primary)]"
+              />
+            </div>
           </div>
         </section>
 
