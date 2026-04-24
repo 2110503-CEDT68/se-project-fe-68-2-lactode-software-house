@@ -29,8 +29,8 @@ export default function CreateHotelPage() {
     const address = data.address.trim();
     const district = data.district.trim();
     const province = data.province.trim();
-    const postalCode = data.postalCode.trim();
-    const phone = data.phone.trim();
+    const postalCode = data.postalcode.trim();
+    const phone = data.tel.trim();
     const email = data.email.trim();
     const ownerEmail = data.ownerEmail.trim();
 
@@ -57,7 +57,7 @@ export default function CreateHotelPage() {
           email,
           ownerEmail,
           facilities: data.facilities,
-          pictures: data.image,
+          pictures: data.pictures,
         },
         token
       );
@@ -81,7 +81,7 @@ export default function CreateHotelPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC]">
+    <div>
       {message ? (
         <div className="mx-auto w-full max-w-[1180px] px-6 pt-8">
           <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
@@ -94,6 +94,6 @@ export default function CreateHotelPage() {
         onSubmit={handleCreate}
         onCancel={handleCancel}
       />
-    </main>
+    </div>
   );
 }

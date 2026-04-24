@@ -10,15 +10,16 @@ import { HOTEL_FACILITY_OPTIONS } from '@/src/constants/facilities';
 export interface HotelFormData {
   name: string;
   address: string;
+  location: string;
   province: string;
   district: string;
-  postalCode: string;
+  postalcode: string;
   description: string;
-  phone: string;
+  tel: string;
   email: string;
   ownerEmail: string;
   facilities: string[];
-  image: string[];
+  pictures: string[];
 }
 
 interface Props {
@@ -36,24 +37,25 @@ export default function HotelForm({
   onCancel,
 }: Props) {
   const normalizedInitialData: HotelFormData = useMemo(() => {
-    const initialImages = Array.isArray(initialData?.image)
-      ? initialData.image
-      : initialData?.image
-      ? [initialData.image as unknown as string]
+    const initialImages = Array.isArray(initialData?.pictures)
+      ? initialData.pictures
+      : initialData?.pictures
+      ? [initialData.pictures as unknown as string]
       : [];
 
     return {
       name: initialData?.name ?? '',
       address: initialData?.address ?? '',
+      location: initialData?.location ?? '',
       province: initialData?.province ?? '',
       district: initialData?.district ?? '',
-      postalCode: initialData?.postalCode ?? '',
+      postalcode: initialData?.postalcode ?? '',
       description: initialData?.description ?? '',
-      phone: initialData?.phone ?? '',
+      tel: initialData?.tel ?? '',
       email: initialData?.email ?? '',
       ownerEmail: initialData?.ownerEmail ?? '',
       facilities: initialData?.facilities ?? [],
-      image: initialImages.length > 0 ? initialImages : [''],
+      pictures: initialImages.length > 0 ? initialImages : [''],
     };
   }, [initialData]);
 
@@ -64,7 +66,7 @@ export default function HotelForm({
   }, [normalizedInitialData]);
 
   const setField = (
-    field: keyof Omit<HotelFormData, 'facilities' | 'image'>,
+    field: keyof Omit<HotelFormData, 'facilities' | 'pictures'>,
     value: string
   ) => {
     setForm((prev) => ({
@@ -73,50 +75,53 @@ export default function HotelForm({
     }));
   };
 
-  const mainPicture = form.image[0] ?? '';
-  const anotherPictures = form.image.slice(1);
+  const mainPicture = form.pictures[0] ?? '';
+  const anotherPictures = form.pictures.slice(1);
+  const canAddAnotherPicture = anotherPictures.length < 19;
 
-  const previewImages = form.image.filter((img) => img.trim() !== '');
+  const previewImages = form.pictures.filter((img) => img.trim() !== '');
 
   const setMainPicture = (value: string) => {
     setForm((prev) => {
-      const nextImages = [...prev.image];
-      nextImages[0] = value;
+      const nextPictures = [...prev.pictures];
+      nextPictures[0] = value;
 
       return {
         ...prev,
-        image: nextImages,
+        pictures: nextPictures,
       };
     });
   };
 
   const setAnotherPicture = (index: number, value: string) => {
     setForm((prev) => {
-      const nextImages = [...prev.image];
-      nextImages[index + 1] = value;
+      const nextPictures = [...prev.pictures];
+      nextPictures[index + 1] = value;
 
       return {
         ...prev,
-        image: nextImages,
+        pictures: nextPictures,
       };
     });
   };
 
   const addAnotherPicture = () => {
+    if (!canAddAnotherPicture) return;
+
     setForm((prev) => ({
       ...prev,
-      image: [...prev.image, ''],
+      pictures: [...prev.pictures, ''],
     }));
   };
 
   const removeAnotherPicture = (index: number) => {
     setForm((prev) => {
-      const nextImages = [...prev.image];
-      nextImages.splice(index + 1, 1);
+      const nextPictures = [...prev.pictures];
+      nextPictures.splice(index + 1, 1);
 
       return {
         ...prev,
-        image: nextImages.length > 0 ? nextImages : [''],
+        pictures: nextPictures.length > 0 ? nextPictures : [''],
       };
     });
   };
@@ -159,7 +164,7 @@ export default function HotelForm({
 
     onSubmit({
       ...form,
-      image: form.image.filter((img) => img.trim() !== ''),
+      pictures: form.pictures.filter((img) => img.trim() !== ''),
     });
   };
 
@@ -200,59 +205,89 @@ export default function HotelForm({
         <section>
           <PhotoGrid images={previewImages} />
 
-          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[1fr_1fr]">
-            <TextInput
-              label="Main picture"
-              placeholder="picture url"
-              value={mainPicture}
-              onChange={setMainPicture}
-            />
-
-            <div className="space-y-3">
-              <div className="flex items-end gap-2">
-                <div className="flex-1">
-                  <TextInput
-                    label="Another picture"
-                    placeholder="picture url"
-                    value={anotherPictures[0] ?? ''}
-                    onChange={(value) => setAnotherPicture(0, value)}
-                  />
+          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="rounded-[22px] border border-[#E5E7EB] bg-white p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-subdetail font-semibold text-[var(--color-text-primary)]">
+                    Main picture
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    This image will be used as the hotel cover photo.
+                  </p>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={addAnotherPicture}
-                  className="mb-[2px] flex h-8 w-8 items-center justify-center rounded-full bg-[#2B3FCB] text-white"
-                >
-                  +
-                </button>
               </div>
 
-              {anotherPictures.slice(1).map((img, index) => {
-                const actualIndex = index + 1;
+              <TextInput
+                placeholder="picture url"
+                value={mainPicture}
+                onChange={setMainPicture}
+              />
+            </div>
 
-                return (
-                  <div key={actualIndex} className="flex items-center gap-2">
-                    <div className="flex-1">
-                      <TextInput
-                        placeholder="picture url"
-                        value={img}
-                        onChange={(value) =>
-                          setAnotherPicture(actualIndex, value)
-                        }
-                      />
-                    </div>
+            <div className="rounded-[22px] border border-[#E5E7EB] bg-white p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-subdetail font-semibold text-[var(--color-text-primary)]">
+                    Additional pictures
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Add up to 19 more image URLs.
+                  </p>
+                </div>
 
-                    <button
-                      type="button"
-                      onClick={() => removeAnotherPicture(actualIndex)}
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-[#FF9FA8] bg-white text-[#FF6B77]"
-                    >
-                      ×
-                    </button>
+                <span className="shrink-0 rounded-full bg-[#EEF2FF] px-3 py-1 text-xs font-semibold text-[#2B3FCB]">
+                  {anotherPictures.length}/19
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-end gap-2">
+                  <div className="flex-1">
+                    <TextInput
+                      placeholder="picture url"
+                      value={anotherPictures[0] ?? ''}
+                      onChange={(value) => setAnotherPicture(0, value)}
+                    />
                   </div>
-                );
-              })}
+
+                  <button
+                    type="button"
+                    onClick={addAnotherPicture}
+                    disabled={!canAddAnotherPicture}
+                    title={canAddAnotherPicture ? 'Add another picture' : 'Maximum 19 additional pictures'}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2B3FCB] text-lg font-semibold leading-none text-white shadow-sm transition hover:bg-[#1E2C8F] disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    +
+                  </button>
+                </div>
+
+                {anotherPictures.slice(1).map((img, index) => {
+                  const actualIndex = index + 1;
+
+                  return (
+                    <div key={actualIndex} className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <TextInput
+                          placeholder="picture url"
+                          value={img}
+                          onChange={(value) =>
+                            setAnotherPicture(actualIndex, value)
+                          }
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => removeAnotherPicture(actualIndex)}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#FF9FA8] bg-white text-lg font-semibold leading-none text-[#FF6B77] transition hover:bg-[#FFF1F2]"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
@@ -276,8 +311,8 @@ export default function HotelForm({
           <TextInput
             label="Phone"
             placeholder="+66 76 123 456"
-            value={form.phone}
-            onChange={(value) => setField('phone', value)}
+            value={form.tel}
+            onChange={(value) => setField('tel', value)}
           />
 
           <div className="md:col-span-3">
@@ -306,8 +341,8 @@ export default function HotelForm({
           <TextInput
             label="Postal Code"
             placeholder="12345"
-            value={form.postalCode}
-            onChange={(value) => setField('postalCode', value)}
+            value={form.postalcode}
+            onChange={(value) => setField('postalcode', value)}
           />
 
           <div className="md:col-span-3">

@@ -35,15 +35,17 @@ export default function EditHotelPage() {
         setSnapshot(hotel);
         setData({
           name: hotel.name ?? '',
-          address: hotel.location ?? '',
+          address: hotel.address ?? hotel.location ?? '',
+          location: hotel.location ?? '',
           province: hotel.province ?? '',
-          postalCode: hotel.postalcode ?? '',
+          district: hotel.district ?? '',
+          postalcode: hotel.postalcode ?? '',
           description: hotel.description ?? '',
-          phone: hotel.tel ?? '',
+          tel: hotel.tel ?? '',
           email: hotel.email ?? '',
           ownerEmail: '',
           facilities: hotel.facilities ?? [],
-          image: hotel.pictures ?? [],
+          pictures: hotel.pictures ?? [],
         });
       } catch (error) {
         console.error(error);
@@ -70,15 +72,15 @@ export default function EditHotelPage() {
         {
           name: formData.name,
           description: formData.description,
-          location: formData.address,
-          district: snapshot?.district ?? '',
+          location: formData.location || formData.address,
+          district: formData.district,
           province: formData.province,
-          postalcode: formData.postalCode,
+          postalcode: formData.postalcode,
           region: snapshot?.region ?? '',
-          tel: formData.phone,
+          tel: formData.tel,
           email: formData.email,
           facilities: formData.facilities,
-          pictures: formData.image,
+          pictures: formData.pictures,
           status: snapshot?.status,
         },
         token
@@ -100,15 +102,15 @@ export default function EditHotelPage() {
   };
 
   if (loading) {
-    return <main className="p-10">Loading...</main>;
+    return <div>Loading...</div>;
   }
 
   if (!data) {
-    return <main className="p-10">{message ?? 'Hotel not found'}</main>;
+    return <div>{message ?? 'Hotel not found'}</div>;
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC]">
+    <div>
       {message ? (
         <div className="mx-auto w-full max-w-[1180px] px-6 pt-8">
           <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-rose-700">
@@ -122,6 +124,6 @@ export default function EditHotelPage() {
         onSubmit={handleUpdate}
         onCancel={handleCancel}
       />
-    </main>
+    </div>
   );
 }
