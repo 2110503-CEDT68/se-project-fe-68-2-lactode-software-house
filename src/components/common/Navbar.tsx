@@ -6,6 +6,7 @@ import {
   BedDouble,
   BookUser,
   Building2,
+  Heart,
   LogIn,
   LogOut,
   ShieldUser,
@@ -75,6 +76,10 @@ export default function Navbar() {
               <Link href="/user/bookings" className="navbar-menu-item">
                 <BookUser className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>My Bookings</span>
+              </Link>
+              <Link href="/user/favorites" className="navbar-menu-item">
+                <Heart className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
+                <span>Favorites</span>
               </Link>
 
               <div className="navbar-divider" />
