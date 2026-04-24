@@ -11,8 +11,8 @@ import { ROOM_FACILITY_OPTIONS } from '@/src/constants/facilities';
 import { deleteRoom, formatApiMessage, getHotelById, getRoomById } from '@/src/lib/api';
 import { Hotel, Room } from '@/types';
 
-const FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
+const ROOM_FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80';
 
 function toReadable(value: string) {
   return value
@@ -148,17 +148,14 @@ export default function RoomDetailPage() {
     ? room.facilities
     : ROOM_FACILITY_OPTIONS.slice(0, 3).map((facility) => facility.value);
 
-  const galleryImages = (() => {
-    const sources = [
-      ...(Array.isArray(room.picture) ? room.picture : []),
-      ...(room.image ? [room.image] : []),
-      ...(Array.isArray(hotel.pictures) ? hotel.pictures : []),
-      ...(hotel.image ? [hotel.image] : []),
-    ].filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
-
-    const unique = Array.from(new Set(sources));
-    return unique.length > 0 ? unique : [FALLBACK_IMAGE];
-  })();
+  const galleryImages = Array.from(
+    new Set(
+      (Array.isArray(room.picture) ? room.picture : [])
+        .filter((item): item is string => typeof item === 'string')
+        .map((item) => item.trim())
+        .filter(Boolean)
+    )
+  );
 
   const roomTypeLabel = toReadable(room.roomType || 'room');
   const bedTypeLabel = toReadable(room.bedType || 'bed');
@@ -199,7 +196,7 @@ export default function RoomDetailPage() {
       ) : null}
 
       <div className="py-8 space-y-6">
-        <PhotoGrid images={galleryImages} fallbackImage={FALLBACK_IMAGE} />
+        <PhotoGrid images={galleryImages.length > 0 ? galleryImages : [ROOM_FALLBACK_IMAGE]} />
 
         <section className="space-y-3">
           <h1 className="text-title">Room Type {roomTypeLabel}</h1>
