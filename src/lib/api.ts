@@ -8,4 +8,11 @@ export { getBookings, getBookingById, createBooking, updateBooking, deleteBookin
 
 export { createRoom, updateRoom, getRoomById, getRoomsByHotelId, deleteRoom } from './api/rooms';
 
-export { addFavorite, removeFavorite } from './api/favorites';
+export {
+  addFavorite,
+  removeFavorite,
+  compareFavorites,
+  type CompareFavoritesParams,
+  type CompareFavoritesResponse,
+  type CompareFavoriteHotelSide,
+} from './api/favorites';

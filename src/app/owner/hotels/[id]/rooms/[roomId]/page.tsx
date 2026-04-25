@@ -141,7 +141,7 @@ export default function RoomDetailPage() {
     );
   }
 
-  const displayAvailable = room.availableNumber ?? room.avaliableNumber ?? 0;
+  const displayAvailable = room.available ?? room.availableNumber ?? room.avaliableNumber ?? 0;
   const activeFacilities = room.facilities?.length
     ? room.facilities
     : ROOM_FACILITY_OPTIONS.slice(0, 3).map((facility) => facility.value);

@@ -66,6 +66,7 @@ export type Room = {
   bed: number;
   description: string;
   facilities: string[];
+  available?: number;
   availableNumber: number;
   avaliableNumber?: number;
   status: string;
