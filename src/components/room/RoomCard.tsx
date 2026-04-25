@@ -31,7 +31,7 @@ export default function RoomCard({ room, onDetail, detailBasePath = '/hotels' }:
     : null;
 
   const name = isApiRoom(room) ? room.roomType : room.name;
-  const available = isApiRoom(room) ? room.availableNumber ?? room.avaliableNumber ?? 0 : room.available;
+  const available = isApiRoom(room) ? room.available ?? room.availableNumber ?? room.avaliableNumber ?? 0 : room.available;
   const maxAdults = isApiRoom(room) ? room.people : room.maxAdults;
   const image = isApiRoom(room)
     ? room.image ?? room.picture?.[0] ?? ROOM_FALLBACK_IMAGE

@@ -36,6 +36,12 @@ function normalizeHotel(hotel: Hotel): Hotel {
   };
 }
 
+function readHotelId(hotel: Hotel) {
+  const source = hotel as unknown as Record<string, unknown>;
+  const candidate = source._id ?? source.id ?? source.hotelID ?? source.hotelId;
+  return typeof candidate === 'string' ? candidate : '';
+}
+
 export async function getHotels(): Promise<Hotel[]> {
   const response = await request<{ success: boolean; data: Hotel[] }>('/hotels', { method: 'GET' });
   return response.data.map(normalizeHotel);
@@ -50,8 +56,19 @@ export async function getHotelsByOwnerId(ownerId: string): Promise<Hotel[]> {
 }
 
 export async function getHotelById(id: string): Promise<Hotel> {
-  const response = await request<{ success: boolean; data: Hotel }>(`/hotels/${id}`, { method: 'GET' });
-  return normalizeHotel(response.data);
+  try {
+    const response = await request<{ success: boolean; data: Hotel }>(`/hotels/${id}`, { method: 'GET' });
+    return normalizeHotel(response.data);
+  } catch (primaryError) {
+    // Backend compatibility fallback:
+    // if /hotels/:id fails (e.g., temporary 500), resolve from /hotels list instead.
+    const fallbackResponse = await request<{ success: boolean; data: Hotel[] }>('/hotels', { method: 'GET' });
+    const match = fallbackResponse.data.find((hotel) => readHotelId(hotel) === id);
+    if (match) {
+      return normalizeHotel(match);
+    }
+    throw primaryError;
+  }
 }
 
 type CreateHotelInput = {

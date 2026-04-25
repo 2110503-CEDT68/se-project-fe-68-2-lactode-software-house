@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import HotelForm, {
   HotelFormData,
-  HotelFormSubmitData,
 } from '@/src/components/hotel/HotelForm';
 import { formatApiMessage, getHotelById, updateHotel } from '@/src/lib/api';
 import { useApp } from '@/src/context/AppContext';
@@ -39,15 +38,16 @@ export default function EditHotelPage() {
         setData({
           name: hotel.name ?? '',
           address: hotel.address ?? hotel.location ?? '',
+          location: hotel.location ?? '',
           district: hotel.district ?? '',
           province: hotel.province ?? '',
-          postalCode: hotel.postalcode ?? '',
+          postalcode: hotel.postalcode ?? '',
           description: hotel.description ?? '',
-          phone: hotel.tel ?? '',
+          tel: hotel.tel ?? '',
           email: hotel.email ?? '',
           ownerEmail: '',
           facilities: hotel.facilities ?? [],
-          image: hotel.pictures ?? [],
+          pictures: hotel.pictures ?? [],
         });
       } catch (error) {
         console.error(error);
@@ -61,7 +61,7 @@ export default function EditHotelPage() {
     fetchHotel();
   }, [id, ready, token, user]);
 
-  const handleUpdate = async (formData: HotelFormSubmitData) => {
+  const handleUpdate = async (formData: HotelFormData) => {
     if (!token) {
       setMessage('Please sign in first.');
       return;
@@ -79,8 +79,7 @@ export default function EditHotelPage() {
         {
           name: formData.name,
           description: formData.description,
-          location: formData.location,
-          address: formData.address,
+          location: formData.location || formData.address,
           district: formData.district,
           province: formData.province,
           postalcode: formData.postalcode,

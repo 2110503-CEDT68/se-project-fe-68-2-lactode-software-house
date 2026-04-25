@@ -1,11 +1,12 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ImagePlus, LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import Button from '@/src/components/common/Button';
 import FacilitySelector from '@/src/components/common/FacilitySelector';
 import TextInput from '@/src/components/common/TextInput';
+import PhotoGrid from '@/src/components/common/PhotoGrid';
 import { ROOM_FACILITY_OPTIONS } from '@/src/constants/facilities';
 import { createRoom, formatApiMessage, getRoomById, updateRoom } from '@/src/lib/api';
 import { useApp } from '@/src/context/AppContext';
@@ -35,6 +36,22 @@ const BED_TYPE_OPTIONS = [
   { value: 'king', label: 'King' },
   { value: 'twin', label: 'Twin' },
 ] as const;
+
+const MAX_ROOM_PICTURES = 10;
+const MAX_ANOTHER_ROOM_PICTURES = 9;
+
+function normalizePictures(pictures: string[]) {
+  const seen = new Set<string>();
+
+  return pictures
+    .map((picture) => picture.trim())
+    .filter((picture) => {
+      if (!picture || seen.has(picture)) return false;
+      seen.add(picture);
+      return true;
+    })
+    .slice(0, MAX_ROOM_PICTURES);
+}
 
 type FormState = {
   roomType: string;
@@ -66,6 +83,7 @@ function parsePositiveNumber(value: string) {
   return parsed;
 }
 
+
 function validateForm(state: FormState) {
   if (!state.roomType.trim()) return 'Please select room type.';
   if (!parsePositiveNumber(state.avaliableNumber)) return 'Please enter a valid available number.';
@@ -77,10 +95,16 @@ function validateForm(state: FormState) {
   return null;
 }
 
+function buildPictureList(mainPicture: string, anotherPictures: string[]) {
+  return normalizePictures([mainPicture, ...anotherPictures]);
+}
+
 export default function RoomCreateForm({ hotelId, mode = 'create', roomId, basePath = '/owner/hotels' }: Props) {
   const router = useRouter();
   const { hotels, token } = useApp();
   const [form, setForm] = useState<FormState>(initialState);
+  const [mainPicture, setMainPicture] = useState('');
+  const [anotherPictures, setAnotherPictures] = useState<string[]>([]);
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [loadingRoom, setLoadingRoom] = useState(mode === 'edit');
@@ -110,6 +134,10 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
         if (cancelled) return;
 
         const availableNumber = room.availableNumber ?? room.avaliableNumber ?? 0;
+        const normalizedPictures = normalizePictures(room.picture ?? []);
+        setMainPicture(normalizedPictures[0] ?? '');
+        setAnotherPictures(normalizedPictures.slice(1, MAX_ROOM_PICTURES));
+
         setForm({
           roomType: room.roomType ?? '',
           avaliableNumber: availableNumber > 0 ? String(availableNumber) : '',
@@ -119,7 +147,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           bed: typeof room.bed === 'number' ? String(room.bed) : '',
           description: room.description ?? '',
           facilities: room.facilities?.length ? room.facilities : ['Free Wi-Fi'],
-          picture: room.picture ?? [],
+          picture: normalizedPictures,
         });
       } catch (error) {
         if (!cancelled) {
@@ -137,25 +165,49 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
     };
   }, [hotelId, isEditMode, roomId]);
 
-  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
-    if (files.length === 0) return;
+  const previewImages = buildPictureList(mainPicture, anotherPictures);
+  const canAddAnotherPicture = anotherPictures.length < MAX_ANOTHER_ROOM_PICTURES;
 
-    const pictures = await Promise.all(
-      files.map(
-        (file) =>
-          new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
-            reader.readAsDataURL(file);
-          })
-      )
-    );
-
+  const syncPictures = (nextMainPicture: string, nextAnotherPictures: string[]) => {
     setForm((current) => ({
       ...current,
-      picture: pictures.filter(Boolean),
+      picture: buildPictureList(nextMainPicture, nextAnotherPictures),
     }));
+  };
+
+  const handleMainPictureChange = (value: string) => {
+    setMainPicture(value);
+    syncPictures(value, anotherPictures);
+  };
+
+  const setAnotherPicture = (index: number, value: string) => {
+    setAnotherPictures((current) => {
+      const nextAnotherPictures = [...current];
+      nextAnotherPictures[index] = value;
+      syncPictures(mainPicture, nextAnotherPictures);
+      return nextAnotherPictures;
+    });
+  };
+
+  const addAnotherPicture = () => {
+    if (!canAddAnotherPicture) return;
+
+    setAnotherPictures((current) => {
+      const nextAnotherPictures = [...current, ''];
+      syncPictures(mainPicture, nextAnotherPictures);
+      return nextAnotherPictures;
+    });
+  };
+
+  const removeAnotherPicture = (index: number) => {
+    setAnotherPictures((current) => {
+      const nextAnotherPictures = current.filter((_, pictureIndex) => pictureIndex !== index);
+      setForm((currentForm) => ({
+        ...currentForm,
+        picture: buildPictureList(mainPicture, nextAnotherPictures),
+      }));
+      return nextAnotherPictures;
+    });
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -175,7 +227,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
 
     const payload: RoomInput = {
       hotelId,
-      picture: form.picture,
+      picture: buildPictureList(mainPicture, anotherPictures),
       roomType: form.roomType.trim(),
       availableNumber: Number(form.avaliableNumber),
       price: Number(form.price),
@@ -202,6 +254,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
             picture: payload.picture,
             roomType: payload.roomType,
             availableNumber: payload.availableNumber,
+            avaliableNumber: payload.availableNumber,
             price: payload.price,
             people: payload.people,
             bedType: payload.bedType,
@@ -215,7 +268,13 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
 
         router.push(`${basePath}/${hotelId}/rooms/${roomId}`);
       } else {
-        await createRoom(payload, token);
+        await createRoom(
+          {
+            ...payload,
+            avaliableNumber: payload.availableNumber,
+          },
+          token
+        );
         router.push(`${basePath}/${hotelId}`);
       }
     } catch (error) {
@@ -267,17 +326,93 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
         </Button>
       </div>
 
-      <label className="owner-room-form__upload">
-        <input type="file" accept="image/*" multiple onChange={handleImageChange} className="owner-room-form__file" />
-        {form.picture[0] ? (
-          <img src={form.picture[0]} alt="Room preview" className="owner-room-form__preview" />
-        ) : (
-          <div className="owner-room-form__upload-placeholder">
-            <ImagePlus className="owner-room-form__upload-icon" />
-            <span>upload picture</span>
+      <section>
+        <PhotoGrid images={previewImages} />
+
+        <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="rounded-[22px] border border-[#E5E7EB] bg-white p-4 shadow-sm">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-subdetail font-semibold text-[var(--color-text-primary)]">
+                  Main picture
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
+                  This image will be used as the room cover photo.
+                </p>
+              </div>
+            </div>
+
+            <TextInput
+              placeholder="picture url"
+              value={mainPicture}
+              onChange={handleMainPictureChange}
+            />
           </div>
-        )}
-      </label>
+
+          <div className="rounded-[22px] border border-[#E5E7EB] bg-white p-4 shadow-sm">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-subdetail font-semibold text-[var(--color-text-primary)]">
+                  Additional pictures
+                </h3>
+                <p className="mt-1 text-xs text-slate-500">
+                  Add up to 9 more image URLs.
+                </p>
+              </div>
+
+              <span className="shrink-0 rounded-full bg-[#EEF2FF] px-3 py-1 text-xs font-semibold text-[#2B3FCB]">
+                {anotherPictures.length}/{MAX_ANOTHER_ROOM_PICTURES}
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-end gap-2">
+                <div className="flex-1">
+                  <TextInput
+                    placeholder="picture url"
+                    value={anotherPictures[0] ?? ''}
+                    onChange={(value) => setAnotherPicture(0, value)}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={addAnotherPicture}
+                  disabled={!canAddAnotherPicture}
+                  title={canAddAnotherPicture ? 'Add another picture' : 'Maximum 9 additional pictures'}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2B3FCB] text-lg font-semibold leading-none text-white shadow-sm transition hover:bg-[#1E2C8F] disabled:cursor-not-allowed disabled:bg-slate-300"
+                >
+                  +
+                </button>
+              </div>
+
+              {anotherPictures.slice(1).map((img, index) => {
+                const actualIndex = index + 1;
+
+                return (
+                  <div key={actualIndex} className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <TextInput
+                        placeholder="picture url"
+                        value={img}
+                        onChange={(value) => setAnotherPicture(actualIndex, value)}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => removeAnotherPicture(actualIndex)}
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#FF9FA8] bg-white text-lg font-semibold leading-none text-[#FF6B77] transition hover:bg-[#FFF1F2]"
+                    >
+                      ×
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="owner-room-form__grid">
         <label className="owner-room-form__field">

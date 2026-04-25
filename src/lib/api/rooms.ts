@@ -8,12 +8,14 @@ function normalizeRoom(room: Room): Room {
   const picture = Array.isArray(rawPicture)
     ? rawPicture.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
     : [];
-  const availableNumber =
-    typeof source.availableNumber === 'number'
-      ? source.availableNumber
-      : typeof source.avaliableNumber === 'number'
-        ? source.avaliableNumber
-        : 0;
+  const available =
+    typeof source.available === 'number'
+      ? source.available
+      : typeof source.availableNumber === 'number'
+        ? source.availableNumber
+        : typeof source.avaliableNumber === 'number'
+          ? source.avaliableNumber
+          : 0;
   const image =
     typeof source.image === 'string' && source.image.trim().length > 0
       ? source.image.trim()
@@ -33,8 +35,9 @@ function normalizeRoom(room: Room): Room {
     picture,
     image,
     facilities,
-    availableNumber,
-    avaliableNumber: availableNumber,
+    available,
+    availableNumber: available,
+    avaliableNumber: available,
   };
 }
 

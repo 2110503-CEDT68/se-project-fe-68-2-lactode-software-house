@@ -10,6 +10,27 @@ type FavoriteButtonProps = {
   hotel: Hotel;
 };
 
+function resolveHotelId(hotel: Hotel) {
+  const source = hotel as unknown as Record<string, unknown>;
+  const candidate = source._id ?? source.id ?? source.hotelID ?? source.hotelId;
+  return typeof candidate === 'string' ? candidate.trim() : '';
+}
+
+function isValidObjectId(value: string) {
+  return /^[a-fA-F0-9]{24}$/.test(value);
+}
+
+function includesHotelId(list: unknown, hotelId: string) {
+  if (!Array.isArray(list) || !hotelId) return false;
+  return list.some((item) => {
+    if (typeof item === 'string') return item.toLowerCase() === hotelId.toLowerCase();
+    if (!item || typeof item !== 'object') return false;
+    const source = item as Record<string, unknown>;
+    const candidate = source._id ?? source.id ?? source.hotelID ?? source.hotelId;
+    return typeof candidate === 'string' && candidate.toLowerCase() === hotelId.toLowerCase();
+  });
+}
+
 function extractUserId(value: unknown) {
   if (!value || typeof value !== 'object') return '';
   const source = value as Record<string, unknown>;
@@ -25,7 +46,12 @@ function containsUserId(value: unknown, userId: string) {
   });
 }
 
-function getIsFavorited(hotel: Hotel, userId?: string) {
+function getIsFavorited(hotel: Hotel, userId?: string, userFavoriteHotels?: string[]) {
+  const hotelId = resolveHotelId(hotel);
+  if (includesHotelId(userFavoriteHotels, hotelId)) {
+    return true;
+  }
+
   const source = hotel as unknown as Record<string, unknown>;
   const direct = source.isFavorite ?? source.isFavorited ?? source.favorite ?? source.favorited;
   if (typeof direct === 'boolean') {
@@ -51,22 +77,31 @@ function getFavoriteCount(hotel: Hotel) {
 }
 
 export default function FavoriteButton({ hotel }: FavoriteButtonProps) {
-  const { user, token } = useApp();
-  const canFavorite = Boolean(user && user.role === 'user' && token);
+  const { user, token, setUser } = useApp();
+  const hotelId = resolveHotelId(hotel);
+  const canFavorite = Boolean(user && user.role === 'user' && token && hotelId);
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [favoriteError, setFavoriteError] = useState('');
+  const favoriteCountFromHotel = getFavoriteCount(hotel);
 
   useEffect(() => {
-    setIsFavorite(getIsFavorited(hotel, user?._id));
-    setFavoriteCount(getFavoriteCount(hotel));
+    setIsFavorite(getIsFavorited(hotel, user?._id, user?.favoriteHotels));
     setFavoriteError('');
-  }, [hotel, user?._id]);
+  }, [hotel, user?._id, user?.favoriteHotels]);
+
+  useEffect(() => {
+    setFavoriteCount(favoriteCountFromHotel);
+  }, [hotelId, favoriteCountFromHotel]);
 
   const handleFavoriteClick = async () => {
     if (!canFavorite || isTogglingFavorite || !token) return;
+    if (!isValidObjectId(hotelId)) {
+      setFavoriteError('Invalid hotel ID.');
+      return;
+    }
 
     const nextFavorite = !isFavorite;
     const previousFavorite = isFavorite;
@@ -79,9 +114,25 @@ export default function FavoriteButton({ hotel }: FavoriteButtonProps) {
 
     try {
       if (nextFavorite) {
-        await addFavorite(hotel._id, token);
+        await addFavorite(hotelId, token);
+        setUser((current) => {
+          if (!current) return current;
+          const currentFavorites = Array.isArray(current.favoriteHotels) ? current.favoriteHotels : [];
+          if (includesHotelId(currentFavorites, hotelId)) return current;
+          return { ...current, favoriteHotels: [...currentFavorites, hotelId] };
+        });
       } else {
-        await removeFavorite(hotel._id, token);
+        await removeFavorite(hotelId, token);
+        setUser((current) => {
+          if (!current) return current;
+          const currentFavorites = Array.isArray(current.favoriteHotels) ? current.favoriteHotels : [];
+          return {
+            ...current,
+            favoriteHotels: currentFavorites.filter(
+              (id) => id.toLowerCase() !== hotelId.toLowerCase()
+            ),
+          };
+        });
       }
     } catch (error) {
       setIsFavorite(previousFavorite);
