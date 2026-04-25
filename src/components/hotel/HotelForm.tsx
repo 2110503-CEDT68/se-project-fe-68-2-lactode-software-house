@@ -197,6 +197,7 @@ export default function HotelForm({
               type="email"
               placeholder="owner@gmail.com"
               value={form.ownerEmail}
+              required
               onChange={(value) => setField('ownerEmail', value)}
             />
           </section>
@@ -297,6 +298,7 @@ export default function HotelForm({
             label="Hotel Name"
             placeholder="Resort Villa brabra"
             value={form.name}
+            required
             onChange={(value) => setField('name', value)}
           />
 
@@ -305,13 +307,15 @@ export default function HotelForm({
             type="email"
             placeholder="contact@sunsetparadise.com"
             value={form.email}
+            required
             onChange={(value) => setField('email', value)}
           />
 
           <TextInput
             label="Phone"
-            placeholder="+66 76 123 456"
+            placeholder="076 123 456"
             value={form.tel}
+            required
             onChange={(value) => setField('tel', value)}
           />
 
@@ -320,28 +324,32 @@ export default function HotelForm({
               label="Address"
               placeholder="Huai Kwang, Central, 342 Rama IV Road"
               value={form.address}
+              required
               onChange={(value) => setField('address', value)}
             />
           </div>
 
           <TextInput
-            label="Province"
-            placeholder="Bangkok"
-            value={form.province}
-            onChange={(value) => setField('province', value)}
-          />
-
-          <TextInput
             label="District"
             placeholder="Huai Kwang"
             value={form.district}
+            required
             onChange={(value) => setField('district', value)}
+          />
+
+          <TextInput
+            label="Province"
+            placeholder="Bangkok"
+            value={form.province}
+            required
+            onChange={(value) => setField('province', value)}
           />
 
           <TextInput
             label="Postal Code"
             placeholder="12345"
             value={form.postalcode}
+            required
             onChange={(value) => setField('postalcode', value)}
           />
 

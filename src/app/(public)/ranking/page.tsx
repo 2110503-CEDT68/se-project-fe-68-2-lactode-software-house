@@ -153,7 +153,10 @@ export default function RankingPage() {
                   hotel={hotel}
                   favoriteCount={favoriteCount}
                   rank={rank}
-                  onClick={() => router.push(getHotelDetailHref(hotel._id))}
+                  onClick={() => {
+                    sessionStorage.setItem('backHref', '/ranking');
+                    router.push(getHotelDetailHref(hotel._id));
+                  }}
                 />
               );
             })

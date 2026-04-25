@@ -13,11 +13,13 @@ import ChangePasswordForm, {
 } from '@/src/components/account/ChangePasswordForm';
 import QuickActionsCard from '@/src/components/account/QuickActionsCard';
 import { useApp } from '@/src/context/AppContext';
+import { useRouter } from 'next/navigation';
 
 type Mode = 'view' | 'edit-profile' | 'change-password';
 
 export default function AccountPage() {
   const { user, updateUser, updatePassword, logoutUser } = useApp();
+  const router = useRouter();
   const getFullName = (target: typeof user) =>
     `${target?.firstname ?? ''} ${target?.lastname ?? ''}`.trim() || target?.username || '';
 
@@ -273,7 +275,10 @@ export default function AccountPage() {
                 username={user.username || ''}
                 email={user.email}
                 tel={user.tel}
-                onLogout={logoutUser}
+                onLogout={async () => {
+                  await logoutUser();
+                  router.push('/');}
+                }
                 onEditProfile={openEditProfileMode}
                 onChangePassword={openChangePasswordMode}
               />

@@ -10,6 +10,7 @@ type TextInputProps = {
   className?: string;
   min?: string;
   disabled?: boolean;
+  required?:boolean;
 };
 
 export default function TextInput({
@@ -22,12 +23,17 @@ export default function TextInput({
   className = "",
   min,
   disabled = false,
+  required = false,
 }: TextInputProps) {
   return (
     <div className={`flex w-full flex-col gap-1 ${className}`}>
       {label && (
         <label className="text-subdetail font-medium text-[var(--color-text-primary)]">
           {label}
+          {required ? (
+            <label className="text-[var(--color-error)]">*</label>
+          ) : null
+          }
         </label>
       )}
 

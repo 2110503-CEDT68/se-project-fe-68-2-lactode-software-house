@@ -11,6 +11,7 @@ import { deleteHotel, formatApiMessage, getHotelById, getRoomsByHotelId } from '
 import { useApp } from '@/src/context/AppContext';
 import { Hotel, Room } from '@/types';
 import DeletePopup from '@/src/components/common/DeletePopup';
+import BackButton from '@/src/components/common/BackButton';
 
 const FALLBACK_IMAGE =
   'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
@@ -113,7 +114,7 @@ export default function ViewHotelProfilePage() {
     return (
       <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
         <div>
-          <Button variant="disabled" className="btn-md" href="/admin/hotels">
+          <Button variant="disabled" className="btn-md" onClick={() => router.back()}>
             Back
           </Button>
         </div>
@@ -138,9 +139,7 @@ export default function ViewHotelProfilePage() {
     <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Button variant="disabled" className="btn-md" href="/admin/hotels">
-            Back
-          </Button>
+          <BackButton fallbackHref="/admin/hotels" />
           <Button variant="primary" className="btn-md" href={hotelEditHref}>
             Edit
           </Button>

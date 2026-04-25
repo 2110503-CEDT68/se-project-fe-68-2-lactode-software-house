@@ -1,3 +1,4 @@
+import BackButton from '@/src/components/common/BackButton';
 import Button from '@/src/components/common/Button';
 import FacilityList from '@/src/components/common/FacilityList';
 import PhotoGrid from '@/src/components/common/PhotoGrid';
@@ -28,9 +29,7 @@ export default async function HotelDetailPage({
     return (
       <main className="min-h-screen mx-auto max-w-7xl px-8 py-8 lg:px-16">
         <div className="flex items-center justify-between">
-          <Button variant="disabled" className="btn-md" href="/owner/hotels">
-            Back
-          </Button>
+          <BackButton fallbackHref="/owner/hotels" />
           <Button variant="primary" className="btn-md" href={`/owner/hotels/${id}/edit`}>
             Edit
           </Button>

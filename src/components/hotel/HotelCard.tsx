@@ -1,9 +1,11 @@
+'use client'
 import { Hotel } from '@/types';
 import Button from '@/src/components/common/Button';
 import ProgressiveImage from '@/src/components/common/ProgressiveImage';
 import FavoriteButton from '@/src/components/hotel/FavoriteButton';
 import { Heart, LogIn } from 'lucide-react';
 import { useApp } from '@/src/context/AppContext';
+import { usePathname } from 'next/navigation';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80';
 
@@ -14,8 +16,13 @@ type HotelCardProps = {
 
 export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
   const { user } = useApp();
+  const pathname = usePathname();
   const isAdminOrOwner = user?.role === 'admin' || user?.role === 'hotelOwner';
   const imageSrc = hotel.pictures?.[0] || FALLBACK_IMAGE;
+
+  const resolvedHref = detailHref 
+  ? `${detailHref}?from=${pathname}` 
+  : `/hotels/${hotel._id}?from=${pathname}`;
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft">
@@ -59,9 +66,9 @@ export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
                 <p className="text-xl font-bold text-slate-900">Up to 3 Nights</p>
               </div>
             )}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" onClick={() => sessionStorage.setItem('backHref', pathname)}>
               <Button
-                href={detailHref ?? `/hotels/${hotel._id}`}
+                href={resolvedHref}
                 variant="primary-icon"
                 icon={<LogIn size={20} strokeWidth={2} />}
                 className="btn-md hotel-card-detail-btn"
