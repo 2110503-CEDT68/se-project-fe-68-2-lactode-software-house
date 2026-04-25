@@ -312,16 +312,9 @@ export default function HotelForm({
 
           <TextInput
             label="Phone"
-<<<<<<< HEAD
-            placeholder="076123456"
-            value={form.phone}
-            required
-            onChange={(value) => setField('phone', value)}
-=======
             placeholder="+66 76 123 456"
             value={form.tel}
             onChange={(value) => setField('tel', value)}
->>>>>>> 53f4c4b67b3936a4122ce06a1e959df87923c9d2
           />
 
           <div className="md:col-span-3">
