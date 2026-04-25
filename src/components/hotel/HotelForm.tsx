@@ -197,6 +197,7 @@ export default function HotelForm({
               type="email"
               placeholder="owner@gmail.com"
               value={form.ownerEmail}
+              required
               onChange={(value) => setField('ownerEmail', value)}
             />
           </section>
