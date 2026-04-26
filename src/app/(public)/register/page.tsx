@@ -40,10 +40,11 @@ export default function RegisterPage() {
 }
 
   return (
-    <main className="px-4 py-16 sm:px-6 lg:px-8">
+    <main className="px-4 py-16 sm:px-6 lg:px-8" data-testid="register-page">
       <AuthCard title="Create account" subtitle="Register with your first name, last name, username, email, telephone number, and password.">
         <form
           className="space-y-5"
+          data-testid="register-form"
           onSubmit={async (event) => {
             event.preventDefault();
             setSubmitting(true);
@@ -57,27 +58,27 @@ export default function RegisterPage() {
         >
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">First Name</span>
-            <input value={firstname} onChange={(event) => setFirstname(event.target.value)} placeholder="First name" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+            <input value={firstname} onChange={(event) => setFirstname(event.target.value)} placeholder="First name" data-testid="register-firstname" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Last Name</span>
-            <input value={lastname} onChange={(event) => setLastname(event.target.value)} placeholder="Last name" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+            <input value={lastname} onChange={(event) => setLastname(event.target.value)} placeholder="Last name" data-testid="register-lastname" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Username</span>
-            <input required value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Display name" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+            <input required value={username} onChange={(event) => setUsername(event.target.value)} placeholder="Display name" data-testid="register-username" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Email</span>
-            <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="example@gmail.com" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+            <input value={email} onChange={(event) => setEmail(event.target.value)} placeholder="example@gmail.com" data-testid="register-email" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Telephone Number</span>
-            <input value={tel} onChange={(event) => setTel(formatPhoneInput(event.target.value))} placeholder="012-345-6789" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+            <input value={tel} onChange={(event) => setTel(formatPhoneInput(event.target.value))} placeholder="012-345-6789" data-testid="register-tel" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Password</span>
-            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
+            <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" data-testid="register-password" className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500" />
           </label>
 
           {/* Terms & Privacy checkbox */}
@@ -86,6 +87,7 @@ export default function RegisterPage() {
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
+              data-testid="register-agree-privacy"
               className="mt-1 h-4 w-4 rounded border-slate-300 accent-[var(--color-primary)]"
             />
             <span className="text-sm text-slate-600">
@@ -97,13 +99,14 @@ export default function RegisterPage() {
           </label>
 
           {message ? (
-            <p className={`rounded-2xl px-4 py-3 text-sm ${message.toLowerCase().includes('account created') ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
+            <p className={`rounded-2xl px-4 py-3 text-sm ${message.toLowerCase().includes('account created') ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`} data-testid="register-message">
               {message}
             </p>
           ) : null}
 
           <button
             disabled={submitting || !agreed}
+            data-testid="register-submit"
             style={{ backgroundColor: 'var(--color-primary)', color: '#ffffff' }}
             className="w-full rounded-2xl bg-brand-500 px-5 py-3 text-base font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
           >

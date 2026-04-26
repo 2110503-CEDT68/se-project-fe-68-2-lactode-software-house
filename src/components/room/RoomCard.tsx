@@ -38,7 +38,7 @@ export default function RoomCard({ room, onDetail, detailBasePath = '/hotels' }:
     : room.image ?? ROOM_FALLBACK_IMAGE;
 
   return (
-    <div className="flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm" data-testid={`room-card-${room._id}`}>
       <div className="flex h-28 w-36 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-gray-50">
         <img
           src={image}
@@ -64,11 +64,11 @@ export default function RoomCard({ room, onDetail, detailBasePath = '/hotels' }:
 
       <div className="self-end">
         {detailHref ? (
-          <Button variant="primary" className="btn-sm" href={detailHref}>
+          <Button variant="primary" className="btn-sm" href={detailHref} testId={`room-card-${room._id}-detail`}>
             Detail
           </Button>
         ) : (
-          <Button variant="primary" className="btn-sm" onClick={() => onDetail?.(room)} disabled={!onDetail}>
+          <Button variant="primary" className="btn-sm" onClick={() => onDetail?.(room)} disabled={!onDetail} testId={`room-card-${room._id}-detail`}>
             Detail
           </Button>
         )}

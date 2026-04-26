@@ -9,6 +9,7 @@ export default function BackButton({ fallbackHref = '/' }: { fallbackHref?: stri
     <Button
       variant="disabled"
       className="btn-md"
+      testId="back-button"
       onClick={() => {
         const back = sessionStorage.getItem('backHref');
         console.log('backHref:', back);

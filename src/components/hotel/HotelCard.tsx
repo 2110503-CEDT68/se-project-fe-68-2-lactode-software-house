@@ -25,7 +25,7 @@ export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
   : `/hotels/${hotel._id}?from=${pathname}`;
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft">
+    <article className="flex h-full flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft" data-testid={`hotel-card-${hotel._id}`}>
       <div className="h-64 w-full bg-slate-100">
         <ProgressiveImage src={imageSrc} alt={hotel.name} />
       </div>
@@ -41,7 +41,7 @@ export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
                 </p>
               </div>
               <div className="flex items-top justify-center">
-                <FavoriteButton hotel={hotel} />
+              <FavoriteButton hotel={hotel} />
               </div>
             </div>
           </div>
@@ -72,6 +72,7 @@ export default function HotelCard({ hotel, detailHref }: HotelCardProps) {
                 variant="primary-icon"
                 icon={<LogIn size={20} strokeWidth={2} />}
                 className="btn-md hotel-card-detail-btn"
+                testId={`hotel-card-${hotel._id}-detail`}
               >
                 Detail
               </Button>

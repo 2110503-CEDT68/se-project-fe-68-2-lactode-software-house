@@ -286,7 +286,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
 
   if (loadingRoom) {
     return (
-      <div className="flex items-center justify-center gap-2 py-20 text-sm text-slate-500">
+      <div className="flex items-center justify-center gap-2 py-20 text-sm text-slate-500" data-testid="room-form-loading">
         <LoaderCircle className="h-4 w-4 animate-spin" />
         Loading room data...
       </div>
@@ -294,7 +294,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
   }
 
   return (
-    <form onSubmit={handleSubmit} className="owner-room-form">
+    <form onSubmit={handleSubmit} className="owner-room-form" data-testid={`room-form-${mode}`}>
       <div className="owner-room-form__heading">
         <p className="owner-room-form__eyebrow">{isEditMode ? 'Edit room' : 'Create room'}</p>
         <h1 className="owner-room-form__title">
@@ -311,6 +311,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           variant="disabled"
           className="owner-room-form__action-button owner-room-form__action-button--secondary"
           onClick={() => router.back()}
+          testId="room-form-cancel"
         >
           cancel
         </Button>
@@ -321,6 +322,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           className="owner-room-form__action-button"
           disabled={submitting}
           icon={submitting ? <LoaderCircle className="owner-room-form__spinner" /> : undefined}
+          testId="room-form-submit"
         >
           {submitting ? (isEditMode ? 'saving...' : 'creating...') : isEditMode ? 'save change' : 'create'}
         </Button>
@@ -345,6 +347,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
             <TextInput
               placeholder="picture url"
               value={mainPicture}
+              testId="room-form-main-picture"
               onChange={handleMainPictureChange}
             />
           </div>
@@ -371,6 +374,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
                   <TextInput
                     placeholder="picture url"
                     value={anotherPictures[0] ?? ''}
+                    testId="room-form-additional-picture-0"
                     onChange={(value) => setAnotherPicture(0, value)}
                   />
                 </div>
@@ -379,6 +383,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
                   type="button"
                   onClick={addAnotherPicture}
                   disabled={!canAddAnotherPicture}
+                  data-testid="room-form-add-picture"
                   title={canAddAnotherPicture ? 'Add another picture' : 'Maximum 9 additional pictures'}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2B3FCB] text-lg font-semibold leading-none text-white shadow-sm transition hover:bg-[#1E2C8F] disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
@@ -395,6 +400,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
                       <TextInput
                         placeholder="picture url"
                         value={img}
+                        testId={`room-form-additional-picture-${actualIndex}`}
                         onChange={(value) => setAnotherPicture(actualIndex, value)}
                       />
                     </div>
@@ -402,6 +408,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
                     <button
                       type="button"
                       onClick={() => removeAnotherPicture(actualIndex)}
+                      data-testid={`room-form-remove-picture-${actualIndex}`}
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#FF9FA8] bg-white text-lg font-semibold leading-none text-[#FF6B77] transition hover:bg-[#FFF1F2]"
                     >
                       ×
@@ -419,6 +426,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           <p className="text-subdetail font-medium text-[var(--color-text-primary)]">Room Type</p>
           <select
             value={form.roomType}
+            data-testid="room-form-room-type"
             onChange={(event) =>
               setForm((current) => ({
                 ...current,
@@ -446,6 +454,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           min="1"
           placeholder="10"
           value={form.avaliableNumber}
+          testId="room-form-amount"
           onChange={(value) => setForm((current) => ({ ...current, avaliableNumber: value }))}
           className="owner-room-form__field"
         />
@@ -456,6 +465,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           min="1"
           placeholder="500"
           value={form.price}
+          testId="room-form-price"
           onChange={(value) => setForm((current) => ({ ...current, price: value }))}
           className="owner-room-form__field"
         />
@@ -466,6 +476,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           min="1"
           placeholder="4"
           value={form.people}
+          testId="room-form-people"
           onChange={(value) => setForm((current) => ({ ...current, people: value }))}
           className="owner-room-form__field"
         />
@@ -474,6 +485,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           <p className="text-subdetail font-medium text-[var(--color-text-primary)]">Bed Type</p>
           <select
             value={form.bedType}
+            data-testid="room-form-bed-type"
             onChange={(event) =>
               setForm((current) => ({
                 ...current,
@@ -501,6 +513,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           min="1"
           placeholder="2"
           value={form.bed}
+          testId="room-form-bed-count"
           onChange={(value) => setForm((current) => ({ ...current, bed: value }))}
           className="owner-room-form__field"
         />
@@ -511,6 +524,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
         <textarea
           className="text-sm text-[var(--color-text-primary)] placeholder:text-gray-400"
           rows={5}
+          data-testid="room-form-description"
           placeholder="A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service."
           value={form.description}
           onChange={(event) =>
@@ -528,6 +542,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
           scope="room"
           options={ROOM_FACILITY_OPTIONS.map((item) => item.label)}
           value={form.facilities}
+          testIdPrefix="room-form-facility"
           onChange={(facilities) =>
             setForm((current) => ({
               ...current,
@@ -538,7 +553,7 @@ export default function RoomCreateForm({ hotelId, mode = 'create', roomId, baseP
       </div>
 
       {message ? (
-        <p className="owner-room-form__message owner-room-form__message--error">{message}</p>
+        <p className="owner-room-form__message owner-room-form__message--error" data-testid="room-form-message">{message}</p>
       ) : null}
     </form>
   );

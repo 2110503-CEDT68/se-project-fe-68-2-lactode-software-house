@@ -30,7 +30,7 @@ export default function HotelSearchBar({
     searchTerm.trim().length > 0 || selectedProvince.length > 0 || selectedFacilities.length > 0;
 
   return (
-    <section className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-soft">
+    <section className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-soft" data-testid="hotel-search-bar">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
         <div className="flex flex-1 items-center gap-3 rounded-full border border-slate-300 bg-white px-5 py-3">
           <Search size={18} className="text-slate-400" />
@@ -39,6 +39,7 @@ export default function HotelSearchBar({
             value={searchTerm}
             onChange={(event) => onSearchTermChange(event.target.value)}
             placeholder="Search hotel name"
+            data-testid="hotel-search-input"
             className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
             aria-label="Search hotel by name"
           />
@@ -54,6 +55,7 @@ export default function HotelSearchBar({
               id="hotel-province-filter"
               value={selectedProvince}
               onChange={(event) => onProvinceChange(event.target.value)}
+              data-testid="hotel-search-province"
               className="min-w-[150px] bg-transparent text-sm text-slate-700 outline-none"
               aria-label="Filter hotels by province"
             >
@@ -70,6 +72,7 @@ export default function HotelSearchBar({
             <button
               type="button"
               onClick={onReset}
+              data-testid="hotel-search-clear"
               className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 px-4 py-3 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
             >
               <X size={16} />
@@ -89,6 +92,7 @@ export default function HotelSearchBar({
             value={selectedFacilities}
             onChange={onFacilityChange}
             scope="hotel"
+            testIdPrefix="hotel-search-facility"
           />
         </div>
       ) : null}

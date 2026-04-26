@@ -9,6 +9,7 @@ interface DeletePopupProps {
   itemLabel?: string;
   disabled?: boolean;
   onDelete?: (itemId: string) => void | Promise<void>;
+  testIdPrefix?: string;
 }
 
 export default function DeletePopup({
@@ -16,6 +17,7 @@ export default function DeletePopup({
   itemLabel = 'item',
   disabled = false,
   onDelete,
+  testIdPrefix,
 }: DeletePopupProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -31,13 +33,14 @@ export default function DeletePopup({
         className="btn-danger"
         onClick={() => setIsOpen(true)}
         disabled={disabled}
+        testId={testIdPrefix ? `${testIdPrefix}-open` : undefined}
       >
         Delete
       </Button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setIsOpen(false)} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center" data-testid={testIdPrefix ? `${testIdPrefix}-dialog` : undefined}>
+          <div className="absolute inset-0 bg-black/50" onClick={() => setIsOpen(false)} data-testid={testIdPrefix ? `${testIdPrefix}-overlay` : undefined} />
 
           <div className="relative mx-4 w-full max-w-xl rounded-3xl bg-white p-8 shadow-xl">
             <div className="flex flex-row items-center justify-center gap-8">
@@ -53,10 +56,10 @@ export default function DeletePopup({
             </div>
 
             <div className="mt-8 flex items-center justify-between">
-              <Button variant="disabled" className="btn-md" onClick={() => setIsOpen(false)}>
+              <Button variant="disabled" className="btn-md" onClick={() => setIsOpen(false)} testId={testIdPrefix ? `${testIdPrefix}-cancel` : undefined}>
                 Cancel
               </Button>
-              <Button variant="danger" className="btn-md" onClick={handleDelete}>
+              <Button variant="danger" className="btn-md" onClick={handleDelete} testId={testIdPrefix ? `${testIdPrefix}-confirm` : undefined}>
                 Delete
               </Button>
             </div>

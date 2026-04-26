@@ -122,7 +122,7 @@ export default function FavoriteHotelPageClient() {
 
   if (!ready || loading) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8" data-testid="favorites-page-loading">
         <div className="rounded-[28px] border border-slate-200 bg-white p-10 text-center">
           <h1 className="text-2xl font-bold text-slate-900">Loading favorites...</h1>
         </div>
@@ -132,14 +132,14 @@ export default function FavoriteHotelPageClient() {
 
   if (!user) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8" data-testid="favorites-page-requires-login">
         <div className="rounded-[28px] border border-slate-200 bg-white p-10 text-center">
           <h1 className="text-2xl font-bold text-slate-900">Sign in to view favorites</h1>
           <p className="mt-3 text-slate-500">
             Please sign in with your user account to see your favorite hotels.
           </p>
           <div className="mt-6 flex justify-center">
-            <Button href="/signin" variant="primary" className="btn-md">
+            <Button href="/signin" variant="primary" className="btn-md" testId="favorites-page-go-to-login">
               Go to Login
             </Button>
           </div>
@@ -149,7 +149,7 @@ export default function FavoriteHotelPageClient() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl space-y-12 px-4 py-10 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl space-y-12 px-4 py-10 sm:px-6 lg:px-8" data-testid="favorites-page">
       <section>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">Favorite list</p>
         <h1 className="mt-2 text-4xl font-bold text-slate-900">Your favorite hotels</h1>
@@ -176,29 +176,30 @@ export default function FavoriteHotelPageClient() {
           variant="primary"
           className="btn-md"
           disabled={favoriteHotels.length < 2}
+          testId="favorites-page-compare"
         >
           Go to Compare
         </Button>
       </div>
 
       {favoriteHotels.length === 0 ? (
-        <section className="rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center">
+        <section className="rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center" data-testid="favorites-page-empty">
           <h2 className="text-2xl font-bold text-slate-900">No favorite hotels yet</h2>
           <p className="mt-3 text-slate-500">
             Add hotels to favorites from the hotel list, then they will appear here.
           </p>
           <div className="mt-6 flex justify-center">
-            <Button href="/hotels" variant="primary" className="btn-md">
+            <Button href="/hotels" variant="primary" className="btn-md" testId="favorites-page-browse-hotels">
               Browse Hotels
             </Button>
           </div>
         </section>
       ) : (
-        <section className="grid gap-8 lg:grid-cols-3">
+        <section className="grid gap-8 lg:grid-cols-3" data-testid="favorites-page-list">
           {currentHotels.length > 0 ? (
             currentHotels.map((hotel) => <HotelCard key={hotel._id} hotel={hotel} />)
           ) : (
-            <div className="lg:col-span-3 rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center">
+            <div className="lg:col-span-3 rounded-[28px] border border-dashed border-slate-300 bg-white p-10 text-center" data-testid="favorites-page-no-filter-results">
               <h2 className="text-2xl font-bold text-slate-900">No hotels found</h2>
               <p className="mt-3 text-slate-500">
                 Try a different hotel name or clear the filters to see more results.
@@ -213,18 +214,20 @@ export default function FavoriteHotelPageClient() {
           <button
             onClick={() => setPage((prev) => prev - 1)}
             disabled={page === 1}
+            data-testid="favorites-page-previous"
             className="rounded-lg border border-slate-300 px-4 py-2 disabled:opacity-50"
           >
             Previous
           </button>
 
-          <span className="text-slate-600">
+          <span className="text-slate-600" data-testid="favorites-page-pagination">
             Page {page} of {totalPages || 1}
           </span>
 
           <button
             onClick={() => setPage((prev) => prev + 1)}
             disabled={page === totalPages || filteredHotels.length === 0}
+            data-testid="favorites-page-next"
             className="rounded-lg border border-slate-300 px-4 py-2 disabled:opacity-50"
           >
             Next

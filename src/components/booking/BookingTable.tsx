@@ -45,7 +45,7 @@ export default function BookingTable({
   const [message, setMessage] = useState('');
 
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
+    <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-soft sm:p-8" data-testid="booking-table">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">Booking dashboard</p>
@@ -57,15 +57,15 @@ export default function BookingTable({
       </div>
 
       {message ? (
-        <div className="mb-5 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700">{message}</div>
+        <div className="mb-5 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700" data-testid="booking-table-message">{message}</div>
       ) : null}
 
       {rows.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-500">
+        <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-500" data-testid="booking-table-empty">
           {emptyText}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-3xl border border-slate-200">
+        <div className="overflow-hidden rounded-3xl border border-slate-200" data-testid="booking-table-list">
           <div className="hidden grid-cols-[1.5fr_1.2fr_0.8fr_1fr] gap-4 bg-slate-50 px-5 py-4 text-sm font-semibold text-slate-600 md:grid">
             <div>Guest / Hotel</div>
             <div>Dates</div>
@@ -78,7 +78,7 @@ export default function BookingTable({
             const nights = countNights(booking.checkInDate, booking.checkOutDate);
 
             return (
-              <div key={booking._id} className="grid gap-4 border-t border-slate-200 px-5 py-5 md:grid-cols-[1.5fr_1.2fr_0.8fr_1fr] md:items-center">
+              <div key={booking._id} className="grid gap-4 border-t border-slate-200 px-5 py-5 md:grid-cols-[1.5fr_1.2fr_0.8fr_1fr] md:items-center" data-testid={`booking-row-${booking._id}`}>
                 <div>
                   <p className="font-semibold text-slate-900">{hotel?.name ?? 'Hotel booking'}</p>
                   <p className="mt-1 text-sm text-slate-500">{hotel ? `${hotel.province} - ${hotel.tel}` : 'Hotel details unavailable'}</p>
@@ -93,6 +93,7 @@ export default function BookingTable({
                   <DeletePopup
                     itemId={booking._id}
                     itemLabel="booking"
+                    testIdPrefix={`booking-row-${booking._id}-delete`}
                     onDelete={async (bookingId) => {
                       const result = await deleteBooking(bookingId);
                       setMessage(result.message);
@@ -102,6 +103,7 @@ export default function BookingTable({
                     variant="primary"
                     href={`${editBasePath}/${booking._id}/edit`}
                     className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                    testId={`booking-row-${booking._id}-edit`}
                   >
                     Edit
                   </Button>

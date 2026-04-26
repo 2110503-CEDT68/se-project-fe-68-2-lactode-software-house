@@ -24,16 +24,17 @@ export default function ChangePasswordForm({
   onSubmit,
 }: ChangePasswordFormProps) {
   return (
-    <section className="card account-card">
+    <section className="card account-card" data-testid="change-password-form-card">
       <h3 className="account-card__title">Account Information</h3>
 
-      <form onSubmit={onSubmit} className="account-form">
-        {error ? <div className="account-form__error">{error}</div> : null}
+      <form onSubmit={onSubmit} className="account-form" data-testid="change-password-form">
+        {error ? <div className="account-form__error" data-testid="change-password-error">{error}</div> : null}
 
         <div className="account-form__field">
           <label htmlFor="account-current-password">Current Password</label>
           <input
             id="account-current-password"
+            data-testid="change-password-current"
             className="input"
             type="password"
             value={values.currentPassword}
@@ -48,6 +49,7 @@ export default function ChangePasswordForm({
           <label htmlFor="account-new-password">New Password</label>
           <input
             id="account-new-password"
+            data-testid="change-password-new"
             className="input"
             type="password"
             value={values.newPassword}
@@ -60,6 +62,7 @@ export default function ChangePasswordForm({
           <label htmlFor="account-confirm-password">Confirm New Password</label>
           <input
             id="account-confirm-password"
+            data-testid="change-password-confirm"
             className="input"
             type="password"
             value={values.confirmPassword}
@@ -71,7 +74,7 @@ export default function ChangePasswordForm({
         </div>
 
         <div className="account-form__actions">
-          <Button variant="disabled" className="btn-sm" onClick={onCancel}>
+          <Button variant="disabled" className="btn-sm" onClick={onCancel} testId="change-password-cancel">
             cancel
           </Button>
 
@@ -80,6 +83,7 @@ export default function ChangePasswordForm({
             variant="primary"
             className="btn-sm"
             disabled={loading}
+            testId="change-password-submit"
           >
             {loading ? 'Updating...' : 'Update Password'}
           </Button>

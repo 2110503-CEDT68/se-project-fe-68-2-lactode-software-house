@@ -11,6 +11,7 @@ type BaseProps = {
   variant?: Variant;
   disabled?: boolean;
   className?: string;
+  testId?: string;
 };
 
 type ButtonProps =
@@ -31,6 +32,7 @@ export default function Button({
   variant = 'primary',
   disabled = false,
   className = '',
+  testId,
   ...props
 }: ButtonProps) {
   const resolvedVariant = disabled ? 'disabled' : variant;
@@ -48,6 +50,7 @@ export default function Button({
       <Link
         href={props.href}
         className={classes}
+        data-testid={testId}
         aria-disabled={disabled}
         onClick={(e) => {
           if (disabled) e.preventDefault();
@@ -64,6 +67,7 @@ export default function Button({
       onClick={props.onClick}
       disabled={disabled}
       className={classes}
+      data-testid={testId}
     >
       {content}
     </button>

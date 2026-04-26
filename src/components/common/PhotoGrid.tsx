@@ -36,10 +36,11 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
   };
 
   const modal = selectedIndex !== null ? (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 py-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 py-6" data-testid="photo-grid-modal">
       <button
         type="button"
         onClick={closePhoto}
+        data-testid="photo-grid-close"
         className="absolute right-5 top-5 flex h-10 w-10 items-center justify-center rounded-full bg-white text-2xl font-semibold text-slate-900 shadow-md"
         aria-label="Close photo preview"
       >
@@ -50,6 +51,7 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
         <button
           type="button"
           onClick={showPrevious}
+          data-testid="photo-grid-previous"
           className="absolute left-5 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-2xl font-semibold text-slate-900 shadow-md"
           aria-label="Previous photo"
         >
@@ -80,6 +82,7 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
         <button
           type="button"
           onClick={showNext}
+          data-testid="photo-grid-next"
           className="absolute right-5 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-2xl font-semibold text-slate-900 shadow-md"
           aria-label="Next photo"
         >
@@ -95,6 +98,7 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
         <div
           className="flex w-full items-center justify-center rounded-2xl bg-gray-100"
           style={{ height: GRID_HEIGHT }}
+          data-testid="photo-grid-empty"
         >
           <p className="text-sm text-gray-400">No photos available</p>
         </div>
@@ -109,6 +113,7 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
         <button
           type="button"
           onClick={() => openPhoto(0)}
+          data-testid="photo-grid-single-photo"
           className="block w-full overflow-hidden rounded-2xl text-left"
           style={{ height: GRID_HEIGHT }}
         >
@@ -134,6 +139,7 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
         <div
           className="grid w-full gap-2 overflow-hidden rounded-2xl"
           style={{ gridTemplateColumns: '1fr 1fr', height: GRID_HEIGHT }}
+          data-testid="photo-grid-two-photos"
         >
           <Thumb src={images[0]} alt="Photo 1" fallbackImage={fallbackImage} onClick={() => openPhoto(0)} />
           <Thumb src={images[1]} alt="Photo 2" fallbackImage={fallbackImage} onClick={() => openPhoto(1)} />
@@ -153,6 +159,7 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
             gridTemplateRows: '1fr 1fr',
             height: GRID_HEIGHT,
           }}
+          data-testid="photo-grid-three-photos"
         >
           <Thumb
             src={images[0]}
@@ -179,6 +186,7 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
             gridTemplateRows: '1fr 1fr',
             height: GRID_HEIGHT,
           }}
+          data-testid="photo-grid-four-photos"
         >
           <Thumb src={images[0]} alt="Photo 1" fallbackImage={fallbackImage} onClick={() => openPhoto(0)} />
           <Thumb src={images[1]} alt="Photo 2" fallbackImage={fallbackImage} onClick={() => openPhoto(1)} />
@@ -203,6 +211,7 @@ export default function PhotoGrid({ images, fallbackImage = DEFAULT_FALLBACK_IMA
           gridTemplateRows: '1fr 1fr',
           height: GRID_HEIGHT,
         }}
+        data-testid="photo-grid-gallery"
       >
         <Thumb
           src={hero}
@@ -246,6 +255,7 @@ function Thumb({
   fallbackImage,
   children,
   onClick,
+  testId,
 }: {
   src: string;
   alt: string;
@@ -253,11 +263,13 @@ function Thumb({
   fallbackImage: string;
   children?: ReactNode;
   onClick?: () => void;
+  testId?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      data-testid={testId}
       className={`relative overflow-hidden bg-gray-100 text-left ${className}`}
     >
       <img
