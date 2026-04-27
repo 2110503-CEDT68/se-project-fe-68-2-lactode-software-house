@@ -28,9 +28,9 @@ export default function Navbar() {
   const displayName = user?.username || fullName || 'Account';
 
   return (
-    <header className="navbar">
-      <div className="navbar-container">
-        <Link href={homePath} className="navbar-logo">
+    <header className="navbar" data-testid="navbar">
+      <div className="navbar-container" data-testid="navbar-container">
+        <Link href={homePath} className="navbar-logo" data-testid="navbar-home">
           <div className="navbar-logo-icon">
             <Building2 className="navbar-logo-building" />
           </div>
@@ -41,21 +41,21 @@ export default function Navbar() {
           </div>
         </Link>
 
-        <nav className="navbar-menu">
+        <nav className="navbar-menu" data-testid={`navbar-menu-${role}`}>
           {role === 'guest' && (
             <>
-              <Link href="/hotels" className="navbar-menu-item">
+              <Link href="/hotels" className="navbar-menu-item" data-testid="navbar-hotels">
                 <BedDouble className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Hotel</span>
               </Link>
-              <Link href="/ranking" className="navbar-menu-item">
+              <Link href="/ranking" className="navbar-menu-item" data-testid="navbar-ranking">
                 <Trophy className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Hotel Ranking</span>
               </Link>
 
               <div className="navbar-divider" />
 
-              <Link href="/signin" className="navbar-menu-item">
+              <Link href="/signin" className="navbar-menu-item" data-testid="navbar-signin">
                 <LogIn className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Login</span>
               </Link>
@@ -64,27 +64,27 @@ export default function Navbar() {
 
           {role === 'user' && (
             <>
-              <Link href="/hotels" className="navbar-menu-item">
+              <Link href="/hotels" className="navbar-menu-item" data-testid="navbar-hotels">
                 <BedDouble className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Hotel</span>
               </Link>
-              <Link href="/ranking" className="navbar-menu-item">
+              <Link href="/ranking" className="navbar-menu-item" data-testid="navbar-ranking">
                 <Trophy className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Hotel Ranking</span>
               </Link>
 
-              <Link href="/user/bookings" className="navbar-menu-item">
+              <Link href="/user/bookings" className="navbar-menu-item" data-testid="navbar-user-bookings">
                 <BookUser className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>My Bookings</span>
               </Link>
-              <Link href="/user/favorites" className="navbar-menu-item">
+              <Link href="/user/favorites" className="navbar-menu-item" data-testid="navbar-user-favorites">
                 <Heart className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Favorites</span>
               </Link>
 
               <div className="navbar-divider" />
 
-              <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/account" className="navbar-menu-item navbar-menu-item-account" data-testid="navbar-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>{displayName}</span>
               </Link>
@@ -96,6 +96,7 @@ export default function Navbar() {
                   router.push('/');
                 }}
                 className="navbar-menu-button"
+                data-testid="navbar-logout"
               >
                 <LogOut className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Logout</span>
@@ -105,23 +106,23 @@ export default function Navbar() {
 
           {role === 'hotelOwner' && (
             <>
-              <Link href="/owner/dashboard" className="navbar-menu-item">
+              <Link href="/owner/dashboard" className="navbar-menu-item" data-testid="navbar-owner-dashboard">
                 <BedDouble className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Hotel Management</span>
               </Link>
-              <Link href="/ranking" className="navbar-menu-item">
+              <Link href="/ranking" className="navbar-menu-item" data-testid="navbar-ranking">
                 <Trophy className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Hotel Ranking</span>
               </Link>
 
-              <Link href="/owner/bookings" className="navbar-menu-item">
+              <Link href="/owner/bookings" className="navbar-menu-item" data-testid="navbar-owner-bookings">
                 <BookUser className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Bookings</span>
               </Link>
 
               <div className="navbar-divider" />
 
-              <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/account" className="navbar-menu-item navbar-menu-item-account" data-testid="navbar-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>{displayName}</span>
               </Link>
@@ -133,6 +134,7 @@ export default function Navbar() {
                   router.push('/');
                 }}
                 className="navbar-menu-button"
+                data-testid="navbar-logout"
               >
                 <LogOut className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Logout</span>
@@ -142,23 +144,23 @@ export default function Navbar() {
 
           {role === 'admin' && (
             <>
-              <Link href="/admin/hotels" className="navbar-menu-item">
+              <Link href="/admin/hotels" className="navbar-menu-item" data-testid="navbar-admin-hotels">
                 <BedDouble className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Hotel</span>
               </Link>
-              <Link href="/ranking" className="navbar-menu-item">
+              <Link href="/ranking" className="navbar-menu-item" data-testid="navbar-ranking">
                 <Trophy className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Hotel Ranking</span>
               </Link>
 
-              <Link href="/admin" className="navbar-menu-item">
+              <Link href="/admin" className="navbar-menu-item" data-testid="navbar-admin-dashboard">
                 <ShieldUser className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Admin dashboard</span>
               </Link>
 
               <div className="navbar-divider" />
 
-              <Link href="/account" className="navbar-menu-item navbar-menu-item-account">
+              <Link href="/account" className="navbar-menu-item navbar-menu-item-account" data-testid="navbar-account">
                 <UserIcon className="navbar-menu-icon navbar-menu-icon-account inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>{displayName}</span>
               </Link>
@@ -170,6 +172,7 @@ export default function Navbar() {
                   router.push('/');
                 }}
                 className="navbar-menu-button"
+                data-testid="navbar-logout"
               >
                 <LogOut className="navbar-menu-icon inline-flex items-center justify-center w-[18px] h-[18px]" />
                 <span>Logout</span>

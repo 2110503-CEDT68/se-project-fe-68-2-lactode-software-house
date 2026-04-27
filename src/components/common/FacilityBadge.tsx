@@ -6,6 +6,7 @@ type Props = {
   active?: boolean;
   selectable?: boolean;
   onClick?: () => void;
+  testId?: string;
 };
 
 export default function FacilityBadge({
@@ -14,6 +15,7 @@ export default function FacilityBadge({
   active = false,
   selectable = false,
   onClick,
+  testId,
 }: Props) {
   const Component = selectable ? 'button' : 'span';
 
@@ -21,6 +23,7 @@ export default function FacilityBadge({
     <Component
       type={selectable ? 'button' : undefined}
       onClick={selectable ? onClick : undefined}
+      data-testid={testId}
       className={[
         'inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition',
 

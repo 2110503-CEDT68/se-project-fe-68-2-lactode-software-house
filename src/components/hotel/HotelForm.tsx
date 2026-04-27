@@ -172,10 +172,11 @@ export default function HotelForm({
     <form
       onSubmit={handleSubmit}
       className="mx-auto w-full max-w-[1180px] px-8 py-8"
+      data-testid={`hotel-form-${mode}`}
     >
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="mt-[6px]">
-          <Button variant="disabled" onClick={handleCancel}>
+          <Button variant="disabled" onClick={handleCancel} testId="hotel-form-cancel">
             cancel
           </Button>
         </div>
@@ -184,6 +185,7 @@ export default function HotelForm({
           type="submit"
           variant="primary"
           className="rounded-full px-8 py-3"
+          testId="hotel-form-submit"
         >
           {mode === 'edit' ? 'edit' : 'create'}
         </Button>
@@ -198,6 +200,7 @@ export default function HotelForm({
               placeholder="owner@gmail.com"
               value={form.ownerEmail}
               required
+              testId="hotel-form-owner-email"
               onChange={(value) => setField('ownerEmail', value)}
             />
           </section>
@@ -222,6 +225,7 @@ export default function HotelForm({
               <TextInput
                 placeholder="picture url"
                 value={mainPicture}
+                testId="hotel-form-main-picture"
                 onChange={setMainPicture}
               />
             </div>
@@ -248,6 +252,7 @@ export default function HotelForm({
                     <TextInput
                       placeholder="picture url"
                       value={anotherPictures[0] ?? ''}
+                      testId="hotel-form-additional-picture-0"
                       onChange={(value) => setAnotherPicture(0, value)}
                     />
                   </div>
@@ -256,6 +261,7 @@ export default function HotelForm({
                     type="button"
                     onClick={addAnotherPicture}
                     disabled={!canAddAnotherPicture}
+                    data-testid="hotel-form-add-picture"
                     title={canAddAnotherPicture ? 'Add another picture' : 'Maximum 19 additional pictures'}
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2B3FCB] text-lg font-semibold leading-none text-white shadow-sm transition hover:bg-[#1E2C8F] disabled:cursor-not-allowed disabled:bg-slate-300"
                   >
@@ -272,6 +278,7 @@ export default function HotelForm({
                         <TextInput
                           placeholder="picture url"
                           value={img}
+                          testId={`hotel-form-additional-picture-${actualIndex}`}
                           onChange={(value) =>
                             setAnotherPicture(actualIndex, value)
                           }
@@ -281,6 +288,7 @@ export default function HotelForm({
                       <button
                         type="button"
                         onClick={() => removeAnotherPicture(actualIndex)}
+                        data-testid={`hotel-form-remove-picture-${actualIndex}`}
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#FF9FA8] bg-white text-lg font-semibold leading-none text-[#FF6B77] transition hover:bg-[#FFF1F2]"
                       >
                         ×
@@ -299,6 +307,7 @@ export default function HotelForm({
             placeholder="Resort Villa brabra"
             value={form.name}
             required
+            testId="hotel-form-name"
             onChange={(value) => setField('name', value)}
           />
 
@@ -308,6 +317,7 @@ export default function HotelForm({
             placeholder="contact@sunsetparadise.com"
             value={form.email}
             required
+            testId="hotel-form-email"
             onChange={(value) => setField('email', value)}
           />
 
@@ -316,6 +326,7 @@ export default function HotelForm({
             placeholder="076 123 456"
             value={form.tel}
             required
+            testId="hotel-form-tel"
             onChange={(value) => setField('tel', value)}
           />
 
@@ -325,6 +336,7 @@ export default function HotelForm({
               placeholder="Huai Kwang, Central, 342 Rama IV Road"
               value={form.address}
               required
+              testId="hotel-form-address"
               onChange={(value) => setField('address', value)}
             />
           </div>
@@ -334,6 +346,7 @@ export default function HotelForm({
             placeholder="Huai Kwang"
             value={form.district}
             required
+            testId="hotel-form-district"
             onChange={(value) => setField('district', value)}
           />
 
@@ -342,6 +355,7 @@ export default function HotelForm({
             placeholder="Bangkok"
             value={form.province}
             required
+            testId="hotel-form-province"
             onChange={(value) => setField('province', value)}
           />
 
@@ -350,6 +364,7 @@ export default function HotelForm({
             placeholder="12345"
             value={form.postalcode}
             required
+            testId="hotel-form-postalcode"
             onChange={(value) => setField('postalcode', value)}
           />
 
@@ -361,6 +376,7 @@ export default function HotelForm({
               <textarea
                 value={form.description}
                 onChange={(e) => setField('description', e.target.value)}
+                data-testid="hotel-form-description"
                 placeholder="A beautiful beachfront hotel with stunning sunset views, offering modern rooms, comfortable facilities, and excellent service. Perfect for both relaxation and family vacations."
                 className="min-h-[140px] w-full rounded-[16px] border border-[#D6D6D6] bg-white px-4 py-3 text-[15px] leading-7 text-[var(--color-text-primary)] outline-none placeholder:text-gray-400 focus:border-[var(--color-primary)]"
               />
@@ -377,6 +393,7 @@ export default function HotelForm({
             scope="hotel"
             options={HOTEL_FACILITY_OPTIONS.map((item) => item.label)}
             value={form.facilities}
+            testIdPrefix="hotel-form-facility"
             onChange={(value) =>
               setForm((prev) => ({
                 ...prev,

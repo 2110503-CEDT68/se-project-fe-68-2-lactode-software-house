@@ -16,10 +16,11 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   return (
-    <main className="px-4 py-16 sm:px-6 lg:px-8">
+    <main className="px-4 py-16 sm:px-6 lg:px-8" data-testid="signin-page">
       <AuthCard title="Sign in" subtitle="Use your email or phone number to access the booking system.">
         <form
           className="space-y-5"
+          data-testid="signin-form"
           onSubmit={async (event) => {
             event.preventDefault();
             setSubmitting(true);
@@ -37,6 +38,7 @@ export default function LoginPage() {
               value={identifier}
               onChange={(event) => setIdentifier(event.target.value)}
               placeholder="example@gmail.com or 012-345-6789"
+              data-testid="signin-identifier"
               className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500"
             />
           </label>
@@ -48,18 +50,20 @@ export default function LoginPage() {
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Password"
+              data-testid="signin-password"
               className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500"
             />
           </label>
 
           {message ? (
-            <p className={`rounded-2xl px-4 py-3 text-sm ${message.toLowerCase().includes('successful') ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`}>
+            <p className={`rounded-2xl px-4 py-3 text-sm ${message.toLowerCase().includes('successful') ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'}`} data-testid="signin-message">
               {message}
             </p>
           ) : null}
 
           <button
             disabled={submitting}
+            data-testid="signin-submit"
             style={{ backgroundColor: 'var(--color-primary)', color: '#ffffff' }}
             className="w-full rounded-2xl bg-brand-500 px-5 py-3 text-base font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -70,6 +74,7 @@ export default function LoginPage() {
             No account yet?{' '}
             <Link
               href="/register"
+              data-testid="signin-register-link"
               className="rounded-sm font-semibold underline underline-offset-4 transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/40"
             >
               Register

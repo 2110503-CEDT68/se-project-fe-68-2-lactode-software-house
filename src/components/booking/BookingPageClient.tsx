@@ -11,11 +11,11 @@ export default function BookingPageClient() {
   const { user, ready } = useApp();
 
   if (!ready) {
-    return <div className="p-6">Loading...</div>;
+    return <div className="p-6" data-testid="booking-page-loading">Loading...</div>;
   }
 
   if (!user) {
-    return <div className="p-6 text-center">Please login before booking</div>;
+    return <div className="p-6 text-center" data-testid="booking-page-requires-login">Please login before booking</div>;
   }
 
   return <BookingForm defaultHotelId={hotelId || undefined} defaultRoomId={roomId || undefined} />;

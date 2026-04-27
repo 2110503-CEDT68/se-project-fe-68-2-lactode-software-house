@@ -160,6 +160,7 @@ export default function FavoriteButton({ hotel }: FavoriteButtonProps) {
         type="button"
         onClick={handleFavoriteClick}
         disabled={isTogglingFavorite}
+        data-testid={`favorite-button-${hotelId}`}
         aria-pressed={isFavorite}
         aria-label={isFavorite ? 'Unfavorite hotel' : 'Favorite hotel'}
         title={isFavorite ? 'Unfavorite' : 'Favorite'}
@@ -179,8 +180,8 @@ export default function FavoriteButton({ hotel }: FavoriteButtonProps) {
           }
         />
       </button>
-      <p className="text-center text-xs text-slate-500">{favoriteCount}</p>
-      {favoriteError ? <p className="text-center text-xs text-rose-600">{favoriteError}</p> : null}
+      <p className="text-center text-xs text-slate-500" data-testid={`favorite-button-${hotelId}-count`}>{favoriteCount}</p>
+      {favoriteError ? <p className="text-center text-xs text-rose-600" data-testid={`favorite-button-${hotelId}-error`}>{favoriteError}</p> : null}
     </div>
   );
 }

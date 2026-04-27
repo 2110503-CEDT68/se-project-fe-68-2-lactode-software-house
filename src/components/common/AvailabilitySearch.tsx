@@ -40,7 +40,7 @@ export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" data-testid="availability-search">
       <div className="flex items-center gap-2">
 
         {/* Search bar */}
@@ -50,6 +50,7 @@ export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps
           <div className="flex items-center gap-2 flex-1">
             <input
               type="date"
+              data-testid="availability-search-check-in"
               value={checkIn}
               onChange={(e) => {
                 setCheckIn(e.target.value);
@@ -60,6 +61,7 @@ export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps
             <span className="text-gray-400 text-sm">-</span>
             <input
               type="date"
+              data-testid="availability-search-check-out"
               value={checkOut}
               onChange={(e) => {
                 setCheckOut(e.target.value);
@@ -77,6 +79,7 @@ export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps
             <User className="w-4 h-4 text-gray-400 flex-shrink-0"/>
             <input
               type="number"
+              data-testid="availability-search-guests"
               min={0}
               step={1}
               value={guests}
@@ -93,10 +96,10 @@ export default function AvailabilitySearch({ onSearch }: AvailabilitySearchProps
         </div>
 
         {/* Search button */}
-        <Button className="btn-md" onClick={handleSearch}>Search</Button>
+        <Button className="btn-md" onClick={handleSearch} testId="availability-search-submit">Search</Button>
       </div>
 
-      {errorText ? <p className="text-sm text-rose-600">{errorText}</p> : null}
+      {errorText ? <p className="text-sm text-rose-600" data-testid="availability-search-error">{errorText}</p> : null}
     </div>
   );
 }

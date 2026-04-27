@@ -226,7 +226,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
 
   if (hydrating || loading) {
     return (
-      <div className="rounded-[28px] border border-slate-200 bg-white p-8 text-slate-500 shadow-soft">
+      <div className="rounded-[28px] border border-slate-200 bg-white p-8 text-slate-500 shadow-soft" data-testid="booking-form-loading">
         Loading booking form...
       </div>
     );
@@ -234,7 +234,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
 
   if (bookingId && !existing) {
     return (
-      <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-8 text-rose-700 shadow-soft">
+      <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-8 text-rose-700 shadow-soft" data-testid="booking-form-not-found">
         Booking not found.
       </div>
     );
@@ -242,17 +242,18 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
 
   if (!bookingId && !hotelId) {
     return (
-      <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-8 text-rose-700 shadow-soft">
+      <div className="rounded-[28px] border border-rose-200 bg-rose-50 p-8 text-rose-700 shadow-soft" data-testid="booking-form-no-hotel">
         No hotel selected.
       </div>
     );
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]" data-testid="booking-form-layout">
       <form
         onSubmit={handleSubmit}
         className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-soft sm:p-8"
+        data-testid={bookingId ? 'booking-form-edit' : 'booking-form-create'}
       >
         <div className="mb-6">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">
@@ -275,6 +276,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
       type="text"
       value={fullName}
       readOnly
+      data-testid="booking-form-fullname"
       className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-slate-700 outline-none"
     />
   </label>
@@ -286,6 +288,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
       type="text"
       value={displayUser?.tel || ''}
       readOnly
+      data-testid="booking-form-contact"
       className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-slate-700 outline-none"
     />
   </label>
@@ -297,6 +300,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
       type="text"
       value={displayUser?.email || ''}
       readOnly
+      data-testid="booking-form-email"
       className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-slate-700 outline-none"
     />
   </label>
@@ -307,6 +311,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
     <input
       type="date"
       value={checkInDate}
+      data-testid="booking-form-check-in"
       onChange={(event) => {
         const nextCheckInDate = event.target.value;
         setCheckInDate(nextCheckInDate);
@@ -326,6 +331,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
     <input
       type="date"
       value={checkOutDate}
+      data-testid="booking-form-check-out"
       onChange={(event) => setCheckOutDate(event.target.value)}
       min={minCheckOutDate}
       className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-brand-500"
@@ -333,7 +339,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
   </label>
 
   {/* Trip summary */}
-  <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2">
+  <div className="rounded-2xl bg-slate-50 p-4 sm:col-span-2" data-testid="booking-form-summary">
     <p className="text-sm font-medium text-slate-700">Trip summary</p>
     <p className="mt-2 text-sm text-slate-500">
       {nights > 0
@@ -351,6 +357,7 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
                 ? 'bg-emerald-50 text-emerald-700'
                 : 'bg-rose-50 text-rose-700'
             }`}
+            data-testid="booking-form-message"
           >
             {message}
           </p>
@@ -358,13 +365,14 @@ export default function BookingForm({ bookingId, defaultHotelId, defaultRoomId }
 
         <button
           disabled={isSubmitting}
+          data-testid="booking-form-submit"
           className="mt-6 w-full rounded-2xl bg-brand-500 px-5 py-4 text-base font-semibold text-white transition hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting ? 'Processing...' : bookingId ? 'Save changes' : 'Confirm booking'}
         </button>
       </form>
 
-      <aside className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
+      <aside className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-soft sm:p-8" data-testid="booking-form-hotel-overview">
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">
           Hotel Overview
         </p>

@@ -11,6 +11,7 @@ type TextInputProps = {
   min?: string;
   disabled?: boolean;
   required?:boolean;
+  testId?: string;
 };
 
 export default function TextInput({
@@ -24,6 +25,7 @@ export default function TextInput({
   min,
   disabled = false,
   required = false,
+  testId,
 }: TextInputProps) {
   return (
     <div className={`flex w-full flex-col gap-1 ${className}`}>
@@ -40,6 +42,7 @@ export default function TextInput({
       <input
         type={type}
         name={name}
+        data-testid={testId}
         value={value}
         placeholder={placeholder}
         min={min}

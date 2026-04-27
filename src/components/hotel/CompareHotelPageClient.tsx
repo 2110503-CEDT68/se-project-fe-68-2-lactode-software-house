@@ -455,7 +455,7 @@ export default function CompareHotelPageClient() {
 
   if (!ready || loading) {
     return (
-      <main className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8" data-testid="compare-page-loading">
         <section className="rounded-[28px] border border-slate-200 bg-white p-8 text-center">
           <h1 className="text-2xl font-bold text-slate-900">Loading compare page...</h1>
         </section>
@@ -465,14 +465,14 @@ export default function CompareHotelPageClient() {
 
   if (!user) {
     return (
-      <main className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8" data-testid="compare-page-requires-login">
         <section className="rounded-[28px] border border-slate-200 bg-white p-8 text-center">
           <h1 className="text-2xl font-bold text-slate-900">Sign in to compare favorites</h1>
           <p className="mt-3 text-slate-500">
             Please sign in with your user account before comparing hotels.
           </p>
           <div className="mt-6 flex justify-center">
-            <Button href="/signin" variant="primary" className="btn-md">
+            <Button href="/signin" variant="primary" className="btn-md" testId="compare-page-go-to-login">
               Go to Login
             </Button>
           </div>
@@ -482,7 +482,7 @@ export default function CompareHotelPageClient() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8">
+    <main className="mx-auto max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8" data-testid="compare-page">
       <section>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-500">Hotel compare</p>
         <h1 className="mt-2 text-4xl font-bold text-slate-900">Compare your favorite hotels</h1>
@@ -491,7 +491,7 @@ export default function CompareHotelPageClient() {
         </p>
       </section>
 
-      <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-soft">
+      <section className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-soft" data-testid="compare-page-controls">
         <div className="grid gap-4 md:grid-cols-[1fr_180px_auto] md:items-end">
           <div className="flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-3 text-sm text-slate-600">
             <SlidersHorizontal size={16} className="text-slate-400" />
@@ -502,6 +502,7 @@ export default function CompareHotelPageClient() {
               id="compare-province-filter"
               value={selectedProvince}
               onChange={(event) => setSelectedProvince(event.target.value)}
+              data-testid="compare-page-province"
               className="min-w-[150px] bg-transparent text-sm text-slate-700 outline-none"
               aria-label="Filter hotels by province"
             >
@@ -523,6 +524,7 @@ export default function CompareHotelPageClient() {
               step={1}
               value={peopleInput}
               onChange={(event) => setPeopleInput(event.target.value)}
+              data-testid="compare-page-people"
               placeholder="0"
               className="w-16 bg-transparent text-sm text-gray-500 outline-none"
             />
@@ -536,6 +538,7 @@ export default function CompareHotelPageClient() {
               void startComparison();
             }}
             disabled={isComparing || !selectedProvince.trim() || parsedPeople === null}
+            testId="compare-page-start"
           >
             {isStarted ? 'Restart Compare' : 'Start Compare'}
           </Button>
@@ -547,24 +550,24 @@ export default function CompareHotelPageClient() {
       </section>
 
       {errorText ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">{errorText}</div>
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700" data-testid="compare-page-error">{errorText}</div>
       ) : null}
 
       {infoText ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-700">
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-700" data-testid="compare-page-info">
           {infoText}
         </div>
       ) : null}
 
       {winner ? (
-        <section className="rounded-[28px] border border-emerald-200 bg-white p-8">
+        <section className="rounded-[28px] border border-emerald-200 bg-white p-8" data-testid="compare-page-winner">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">Winner</p>
           <h2 className="mt-2 text-3xl font-bold text-slate-900">{winner.name}</h2>
           <p className="mt-2 text-slate-600">
             {winner.district}, {winner.province}
           </p>
           <div className="mt-5">
-            <Button href={`/hotels/${winner._id}`} variant="primary" className="btn-md">
+            <Button href={`/hotels/${winner._id}`} variant="primary" className="btn-md" testId="compare-page-winner-detail">
               View Winner Detail
             </Button>
           </div>
@@ -572,14 +575,14 @@ export default function CompareHotelPageClient() {
       ) : null}
 
       {isStarted && champion && challenger ? (
-        <section className="space-y-4">
+        <section className="space-y-4" data-testid="compare-page-round">
           <p className="text-sm text-slate-500">
             Round {challengerIndex} of {Math.max(1, pool.length - 1)}
           </p>
 
           <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft">
             <div className="overflow-x-auto">
-              <table className="min-w-[860px] w-full table-fixed text-sm text-slate-700">
+              <table className="min-w-[860px] w-full table-fixed text-sm text-slate-700" data-testid="compare-page-table">
                 <colgroup>
                   <col className="w-[24%]" />
                   <col className="w-[38%]" />
@@ -692,6 +695,7 @@ export default function CompareHotelPageClient() {
                           void handlePick('left');
                         }}
                         disabled={isComparing}
+                        testId="compare-page-pick-left"
                       >
                         I prefer this !
                       </Button>
@@ -704,6 +708,7 @@ export default function CompareHotelPageClient() {
                           void handlePick('right');
                         }}
                         disabled={isComparing}
+                        testId="compare-page-pick-right"
                       >
                         I prefer this !
                       </Button>
@@ -715,13 +720,13 @@ export default function CompareHotelPageClient() {
           </div>
 
           {isComparing ? (
-            <p className="text-sm text-slate-500">Comparing hotels with backend...</p>
+            <p className="text-sm text-slate-500" data-testid="compare-page-comparing">Comparing hotels with backend...</p>
           ) : null}
         </section>
       ) : null}
 
       {eliminatedHotels.length > 0 ? (
-        <section className="rounded-[28px] border border-slate-200 bg-white p-6">
+        <section className="rounded-[28px] border border-slate-200 bg-white p-6" data-testid="compare-page-eliminated">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Eliminated Hotels</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {eliminatedHotels.map((hotel) => (
