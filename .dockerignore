@@ -1,0 +1,8 @@
+node_modules
+.env
+.gitattributes
+.git
+.github
+.vscode
+Dockerfile
+.dockerignore
